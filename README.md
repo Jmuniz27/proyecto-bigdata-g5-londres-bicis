@@ -24,7 +24,7 @@ diseño del pipeline ETL y análisis de costos, está en
 
 ## Grupo 5
 
-Cevallos Vinces Nahin Jussephe, Sanchez Guzman Annabella Noelia,
-Martha Maritza Duran Navarrete, Suarez Aspiazu Jesus David,
-Martin Pimentel Isabella Ivonne, Zurita Guerrero Angelo Saul,
-Munizaga Torres Juan Andres
+Nahin Jussephe Cevallos Vinces, Annabella Noelia Sanchez Guzman,
+Martha Maritza Duran Navarrete, Jesus David Suarez Aspiazu,
+Isabella Ivonne Martin Pimentel, Angelo Saul Zurita Guerrero,
+Juan Andres Munizaga Torres
