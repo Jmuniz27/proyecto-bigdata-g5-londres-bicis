@@ -22,12 +22,12 @@ Pc\_Nahin  & 39.4 GB & SQLite cruzó los 10 minutos en XL Q2 (678.7 s) y arrastr
 
 \subsection{Las tres lecturas}
 
-\textbf{La máquina con menos RAM sobrevivió donde una con el doble falló.} El MacBook de 8 GB completó la versión XL en las tres herramientas, mientras el equipo de 15.7 GB abortó leyendo el mismo archivo. La memoria unificada y la velocidad del SSD compensaron la diferencia nominal de RAM. Esto descarta la lectura ingenua de que más memoria significa mayor capacidad de procesamiento.
+\textbf{La máquina con menos RAM sobrevivió donde una con el doble falló.} El MacBook de 8 GB completó la versión XL en las tres herramientas, mientras el equipo de 15.7 GB abortó leyendo el mismo archivo. La memoria unificada y la velocidad del SSD compensaron la diferencia nominal de RAM, de modo que tener más memoria no se tradujo en mayor capacidad de procesamiento.
 
-\textbf{Cambiar la representación movió el umbral sin tocar el hardware.} La misma Pc\_Martha que no pudo leer el CSV de 4.7 GB procesó la versión XL en 6.0 segundos sobre el Parquet. El dataset no cambió, la máquina no cambió, solo cambió cómo estaban escritos los bytes. Si el umbral de Big Data se puede mover con un paso de ETL, entonces el umbral nunca fue una propiedad del dataset.
+Cambiar la representación movió el umbral sin tocar el hardware. La misma Pc\_Martha que no pudo leer el CSV de 4.7 GB procesó la versión XL en 6.0 segundos sobre el Parquet. El dataset siguió siendo el mismo y la máquina también. Lo único que cambió fue cómo estaban escritos los bytes, y eso bastó para volver viable lo que antes no lo era.
 
-\textbf{La arquitectura del motor domina sobre las especificaciones del equipo.} DuckDB en la máquina de 8 GB (2.7 s en XL optimizado) superó ampliamente a SQLite en la máquina de 40 GB (varios minutos). Estructurar bien los datos y elegir un motor analítico adecuado rinde más que agregar memoria.
+También pesó la arquitectura del motor por encima de las especificaciones del equipo. DuckDB en la máquina de 8 GB resolvió la versión XL optimizada en 2.7 segundos, mientras SQLite tardaba varios minutos en la de 40 GB. Estructurar bien los datos y elegir un motor analítico adecuado rindió más que agregar memoria.
 
 \subsection{Escalado}
 
-En escala logarítmica, una recta de pendiente 1 indica escalado lineal $O(n)$. Lo relevante no es la pendiente sino dónde se rompe la linealidad: cuando los datos dejan de caber cómodamente en RAM, el sistema pagina a disco y la curva se dispara. Ese quiebre es distinto en cada máquina y es, precisamente, la frontera del Big Data para ese equipo.
+En escala logarítmica, una recta de pendiente 1 indica escalado lineal $O(n)$. Más que la pendiente interesa dónde se rompe la linealidad. Cuando los datos dejan de caber cómodamente en RAM el sistema pagina a disco y la curva se dispara. Ese quiebre aparece en un punto distinto en cada máquina y marca la frontera del Big Data para ese equipo.

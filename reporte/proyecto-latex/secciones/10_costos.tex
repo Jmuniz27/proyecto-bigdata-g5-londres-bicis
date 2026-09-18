@@ -24,6 +24,7 @@ El análisis cubre dos cosas distintas: el costo de operar el pipeline ETL propu
 \toprule
 Componente & Cálculo & Costo/mes & Fuente \\
 \midrule
+Ingesta del archivo mensual (movimiento de datos) & 0.488 GB/mes de entrada. Azure no cobra transferencia \emph{entrante}; las escrituras ya están en la fila de operaciones & \$0.000 & \href{https://azure.microsoft.com/en-us/pricing/details/bandwidth/}{[3]} \\
 Almacenamiento ADLS Gen2 (bronce+plata+oro) & $(4.725 + 0.089 + 0.005)$ GB $\times \$0.0208$/GB (Hot, LRS) & \$0.100 & \href{https://azure.microsoft.com/en-us/pricing/details/storage/data-lake/}{[1]} \\
 Operaciones ADLS Gen2 (escritura/lectura mensuales) & $\sim$50 escrituras $\times \$0.0625/10\text{k}$ + $\sim$5{,}000 lecturas $\times \$0.004/10\text{k}$ & \$0.002 & \href{https://azure.microsoft.com/en-us/pricing/details/storage/data-lake/}{[1]} \\
 Cómputo ETL (Databricks Jobs Compute, DS3 v2, 1 corrida/mes) & \$0.518/hora (VM + 0.75 DBU) $\times$ 10 min & \$0.086 & \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{[2]} \\
@@ -41,16 +42,14 @@ Transferencia de salida & Muy por debajo de los 100 GB/mes gratuitos de Azure & 
 
 El total sigue siendo minúsculo ($\sim$\$5/año) porque todo el histórico del dataset cabe en menos de 5 GB. Esa es en sí misma una conclusión relevante: \textbf{a esta escala, el costo de nube no es un problema}. Lo que domina el presupuesto es la decisión de diseño (Delta vs. CSV, cuánto tiempo queda encendido el warehouse), no el gasto en infraestructura. Esto es consistente con el hallazgo de la Fase 3: la representación de los datos importa más que la cantidad de recursos que se les asigna.
 
-\textbf{Databricks cuesta más que un equivalente sobre servicios nativos de nube a este volumen, y la causa es identificable.} Un diseño equivalente sobre S3 + Glue + Athena rondaría \$0.27/mes. Aquí sale \$0.42/mes. El almacenamiento es casi igual (ambos $\sim$\$0.10). La diferencia está en el consumo: un motor facturado por \emph{terabyte escaneado} (Athena) sale más barato a este volumen que uno facturado por \emph{tiempo encendido} (Databricks SQL Serverless, con tarifa mínima de \$2.80/hora). La brecha se cierra o se invierte en cuanto crece el volumen de consultas concurrentes, que es el escenario para el que Databricks SQL está diseñado.
+A este volumen, Databricks cuesta más que un equivalente sobre servicios nativos de nube, y la causa es identificable. Un diseño sobre S3 + Glue + Athena rondaría \$0.27/mes frente a los \$0.42/mes de aquí. El almacenamiento es casi igual, unos \$0.10 en ambos casos, así que la diferencia está en el consumo. Un motor facturado por \emph{terabyte escaneado} como Athena sale más barato a este volumen que uno facturado por \emph{tiempo encendido} como Databricks SQL Serverless, con su tarifa mínima de \$2.80/hora. La brecha se cierra o se invierte en cuanto crece el volumen de consultas concurrentes, que es el escenario para el que Databricks SQL está diseñado.
 
 \textbf{Sensibilidad a la escala.} Si el sistema creciera 200 veces ($\sim$945 GB acumulados), el almacenamiento en bronce pasaría a $\approx\$19.7$/mes (sigue en el primer escalón de tarifa) y el cómputo ETL, asumiendo que Spark escala el job a unos 100 minutos, a $\sim$\$0.86/mes. El costo dejaría de ser trivial, pero seguiría siendo pequeño frente al tiempo de persona que cuesta reproducir el análisis sin el artefacto optimizado.
 
 \subsection{Costo ya medido: cómputo local y tiempo de persona}
 
-\textbf{Costo en almacenamiento (medido).} El CSV original de la versión XL pesa 4,725 MB. El Parquet optimizado pesa 89 MB y el CSV estrecho para SQLite pesa 442 MB. La reducción es de $53\times$ y $10.7\times$ respectivamente.
+\textbf{Almacenamiento y cómputo (medidos).} El CSV de la versión XL pesa 4,725 MB; el Parquet optimizado, 89 MB, y el CSV estrecho para SQLite, 442 MB: reducciones de $53\times$ y $10.7\times$. El ETL cuesta entre 2.6 s y 14.8 s según máquina y versión, y ahorra por corrida entre 24.6 s (DuckDB, XL) y 191.9 s (Pandas, XL), así que se amortiza en una fracción de la primera corrida.
 
-\textbf{Costo en cómputo local (medido).} El ETL de la Fase 3 cuesta entre 2.6 s y 14.8 s según la máquina y la versión. El ahorro por corrida completa del análisis va de 24.6 s (DuckDB, XL) a 191.9 s (Pandas, XL). La amortización ocurre en una fracción de la primera corrida.
-
-\textbf{Costo en tiempo de persona.} Pc\_Martha perdió 17 minutos en una ejecución que terminó fallando. Ese tipo de costo no aparece en ninguna tabla de benchmark ni en la tabla de costos de nube, pero es real y recurrente cada vez que alguien reproduce el análisis sin el artefacto optimizado.
+\textbf{Costo en tiempo de persona.} Los 17 minutos que Pc\_Martha perdió en una ejecución fallida no aparecen en ninguna tabla de costos, pero se repiten cada vez que alguien reproduce el análisis sin el artefacto optimizado.
 
 Si el volumen de consultas creciera de forma sostenida, conviene migrar el warehouse de Databricks SQL de Serverless a capacidad reservada, que baja el costo por hora a cambio de tenerlo encendido de forma predecible; a este volumen de consultas mensuales no se justifica.
