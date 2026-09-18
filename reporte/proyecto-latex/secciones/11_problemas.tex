@@ -1,14 +1,21 @@
 \section{Problemas encontrados}
 
-\begin{table}[htbp]
-\centering
-\footnotesize
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedright\arraybackslash}p{7.9cm}>{\raggedright\arraybackslash}p{7.9cm}}
 \caption{Problemas encontrados durante el desarrollo}
-\label{tab:problemas}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+\label{tab:problemas} \\
 \toprule
 \# & Problema & Cómo se resolvió \\
 \midrule
+\endfirsthead
+\multicolumn{3}{l}{\footnotesize \textit{Cuadro \thetable\ (continuación): Problemas encontrados durante el desarrollo}} \\
+\toprule
+\# & Problema & Cómo se resolvió \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
 1 & \textbf{Las tres herramientas numeran los días de la semana distinto.} Pandas \texttt{dt.dayofweek} arranca en lunes $=0$; DuckDB \texttt{dayofweek()} y SQLite \texttt{strftime('\%w')} arrancan en domingo $=0$. Los resultados no coincidían aunque el total sí. &
 Se unificó todo a lunes $=0$ con \texttt{isodow()-1} en DuckDB y \texttt{(strftime('\%w')+6)\%7} en SQLite. La validación cruzada se agregó justamente para cazar este tipo de error. \\
 2 & \textbf{\texttt{end\_station\_id} se infiere como \texttt{DOUBLE}} porque tiene nulos, mientras \texttt{start\_station\_id} es entero. Al agrupar por el par, los identificadores no cruzaban: \texttt{529.0} contra \texttt{529}. &
@@ -27,6 +34,4 @@ Los \texttt{.db} y \texttt{.parquet} se escriben en disco local, no en la carpet
 Se registró como resultado, no como error a corregir: es el dato que define el umbral de Big Data para ese equipo. Se corrió una segunda pasada sin XL para obtener la serie completa de las demás versiones. \\
 9 & \textbf{La gráfica de impacto suma tiempos sin verificar que ambas etapas tengan las mismas preguntas completadas.} Cuando una etapa tiene ejecuciones omitidas, la barra de la línea base queda artificialmente corta y sugiere que la optimización empeoró el rendimiento. &
 Se detectó en el caso de SQLite en XL sobre Pc\_Nahin y se corrigió comparando pregunta contra pregunta. La comparación válida está en la Fase 3 (\S\ref{sec:nota-nahin}). \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\end{longtable}

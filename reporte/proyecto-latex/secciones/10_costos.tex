@@ -7,7 +7,7 @@ El análisis cubre dos cosas distintas: el costo de operar el pipeline ETL propu
 
 \begin{itemize}
   \item Proveedor: Databricks sobre Microsoft Azure, tier Premium, región East US, precios \emph{pay-as-you-go} sin descuentos por compromiso.
-  \item Frecuencia: batch mensual, con un archivo del tamaño de la versión S (0.488 GB) por corrida. El estado estable se alcanza en el mes 10, cuando bronce llega al tamaño de la versión XL (4.725 GB).
+  \item Frecuencia: batch mensual, con un archivo del tamaño de la versión S (0.488 GB) por corrida. El estado estable se alcanza en el mes 10, cuando la capa bronce llega al tamaño de la versión XL (4.725 GB).
   \item La capa plata mantiene la razón de reducción de la Fase 3, $53\times$ frente al CSV. El Delta acumulado en el mes 10 pesa $\sim$89 MB.
   \item ETL en un nodo \texttt{Standard\_DS3\_v2} (4 vCPU, 14 GB RAM, 0.75 DBU) de tipo \emph{Jobs Compute}, con 10 minutos por corrida (arranque de clúster incluido).
   \item Consumo contra un \emph{warehouse} Databricks SQL Serverless 2X-Small (4 DBU) que se apaga solo tras inactividad. Se asumen 5 minutos de uso mensual.
@@ -27,7 +27,7 @@ Componente & Cálculo & Costo/mes & Fuente \\
 Almacenamiento ADLS Gen2 (bronce+plata+oro) & $(4.725 + 0.089 + 0.005)$ GB $\times \$0.0208$/GB (Hot, LRS) & \$0.100 & \href{https://azure.microsoft.com/en-us/pricing/details/storage/data-lake/}{[1]} \\
 Operaciones ADLS Gen2 (escritura/lectura mensuales) & $\sim$50 escrituras $\times \$0.0625/10\text{k}$ + $\sim$5{,}000 lecturas $\times \$0.004/10\text{k}$ & \$0.002 & \href{https://azure.microsoft.com/en-us/pricing/details/storage/data-lake/}{[1]} \\
 Cómputo ETL (Databricks Jobs Compute, DS3 v2, 1 corrida/mes) & \$0.518/hora (VM + 0.75 DBU) $\times$ 10 min & \$0.086 & \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{[2]} \\
-Orquestación (Databricks Workflows) & Incluida en el cómputo del job; no hay cargo de orquestador aparte & \$0.000 & \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{[2]} \\
+Orquestación (Databricks Workflows) & Incluida en el cómputo del job, sin cargo de orquestador aparte & \$0.000 & \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{[2]} \\
 Catálogo de esquema (Unity Catalog) & Incluido en el workspace Premium a este volumen de tablas & \$0.000 & \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{[2]} \\
 Consulta (Databricks SQL Serverless, 2X-Small) & \$2.80/hora $\times$ 5 min/mes de uso & \$0.233 & \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{[2]} \\
 Transferencia de salida & Muy por debajo de los 100 GB/mes gratuitos de Azure & \$0.000 & \href{https://azure.microsoft.com/en-us/pricing/details/bandwidth/}{[3]} \\
