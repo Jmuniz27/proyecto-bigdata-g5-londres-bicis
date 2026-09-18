@@ -7,6 +7,15 @@
 \usepackage[spanish]{babel}
 \decimalpoint % todas las cifras del reporte usan punto decimal, no coma
 
+% ---------- Símbolos y math (antes de la tipografía: newtxmath debe cargarse
+% después de amssymb para no chocar con \Bbbk) ----------
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ---------- Tipografía ----------
+\usepackage{libertine}
+\usepackage[libertine]{newtxmath}
+
 % ---------- Página ----------
 \usepackage[margin=2.0cm]{geometry}
 \setlength{\emergencystretch}{3em}
@@ -53,10 +62,6 @@
 % ---------- Diagramas TikZ ----------
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning}
-
-% ---------- Símbolos y math ----------
-\usepackage{amsmath}
-\usepackage{amssymb}
 
 % ---------- Hipervínculos (al final del preámbulo) ----------
 \usepackage[colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!50!black, citecolor=blue!50!black]{hyperref}
