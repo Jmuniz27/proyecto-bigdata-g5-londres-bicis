@@ -90,10 +90,4 @@ Consumo & Databricks SQL (Serverless) + Power BI & El warehouse arranca en segun
 
 La capa de limpieza es donde se resuelven los tres problemas de calidad detectados en la exploración: el casteo de \texttt{end\_station\_id} a entero, el tratamiento de los nulos de destino y el marcado de duraciones anómalas. La capa plata materializa la proyección de cuatro columnas con tipos reducidos que produjo las mejoras de la Fase 3.
 
-\textbf{Pendiente de decidir por el equipo:}
-
-\begin{itemize}
-  \item Confirmar si el enunciado pide capas medallón u otra nomenclatura
-  \item Decidir si el catálogo de estaciones se une en plata o en oro
-  \item Especificar la estrategia de particionado en ADLS Gen2, si aplica (por ejemplo, por año-mes de \texttt{start\_rental\_date\_time})
-\end{itemize}
+La nomenclatura de capas es medallón (bronce/plata/oro), el estándar de facto para pipelines de ingesta incremental sobre un lakehouse. El catálogo de estaciones se une en la capa plata, durante la misma limpieza que resuelve los tres problemas de calidad: las tres preguntas lo necesitan, y unirlo ahí evita repetir el join en la capa oro. Los datos se particionan por año-mes de \texttt{start\_rental\_date\_time}, alineado con la cadencia mensual de ingesta, así que cada corrida del job solo toca la partición del mes que entra.

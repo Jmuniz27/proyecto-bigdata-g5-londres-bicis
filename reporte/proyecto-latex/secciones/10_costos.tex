@@ -15,7 +15,7 @@ El análisis cubre dos cosas distintas: el costo de operar el pipeline ETL propu
 
 \subsection{Costo del pipeline en la nube (mensual, estado estable)}
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \footnotesize
 \caption{Desglose de costo mensual del pipeline en Databricks + Azure, mes 10 (estado estable)}
@@ -53,9 +53,4 @@ El total sigue siendo minúsculo ($\sim$\$5/año) porque todo el histórico del 
 
 \textbf{Costo en tiempo de persona.} Pc\_Martha perdió 17 minutos en una ejecución que terminó fallando. Ese tipo de costo no aparece en ninguna tabla de benchmark ni en la tabla de costos de nube, pero es real y recurrente cada vez que alguien reproduce el análisis sin el artefacto optimizado.
 
-\textbf{Pendiente de decidir por el equipo:}
-
-\begin{itemize}
-  \item Validar los supuestos de frecuencia y tamaño de la carga incremental contra el enunciado, si este especifica algo distinto
-  \item Decidir si conviene pasar el warehouse de Databricks SQL a capacidad reservada si el volumen de consultas crece
-\end{itemize}
+Si el volumen de consultas creciera de forma sostenida, conviene migrar el warehouse de Databricks SQL de Serverless a capacidad reservada, que baja el costo por hora a cambio de tenerlo encendido de forma predecible; a este volumen de consultas mensuales no se justifica.
