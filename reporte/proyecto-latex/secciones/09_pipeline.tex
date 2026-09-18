@@ -1,11 +1,7 @@
 \section{Diseño del pipeline ETL}
 \label{sec:pipeline}
 
-\begin{pendiente}
-El enunciado pide únicamente el diagrama, sin implementación. Lo que sigue es una propuesta de partida basada en lo que ya se construyó en la Fase 3, con Databricks sobre Azure como plataforma concreta para cada etapa; el equipo debe validarla y ajustarla.
-\end{pendiente}
-
-El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formalizarlo en capas lo vuelve reutilizable y explica las decisiones de diseño. Se asume un escenario de ingesta periódica: el operador del sistema de bicicletas entrega un archivo mensual con los viajes nuevos, de un tamaño similar a la versión S del dataset (0.488 GB, 3.97 millones de filas). Con esa cadencia, el archivo acumulado en la capa bronce alcanza el tamaño de la versión XL (4.725 GB) alrededor del mes 10, momento que se usa como estado estable para el análisis de costos de la Sección \ref{sec:costos}.
+El enunciado pide únicamente el diagrama, sin implementación: lo que sigue es la propuesta, sobre Databricks + Azure. El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formalizarlo en capas lo vuelve reutilizable y explica las decisiones de diseño. Se asume un escenario de ingesta periódica: el operador del sistema de bicicletas entrega un archivo mensual con los viajes nuevos, de un tamaño similar a la versión S del dataset (0.488 GB, 3.97 millones de filas). Con esa cadencia, el archivo acumulado en la capa bronce alcanza el tamaño de la versión XL (4.725 GB) alrededor del mes 10, momento que se usa como estado estable para el análisis de costos de la Sección \ref{sec:costos}.
 
 \begin{figure}[htbp]
 \centering
