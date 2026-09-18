@@ -52,20 +52,20 @@ Tiempo total de las tres preguntas, antes y después, en segundos.
 \toprule
 Versión & Equipo & Pandas & DuckDB & SQLite & ETL (s) \\
 \midrule
-M  & Pc\_Jesus  & $34.5\rightarrow 0.7$ ($48\times$) & $5.0\rightarrow 0.6$ ($8\times$) & $108.2\rightarrow 61.7$ ($1.8\times$) & 8.4 \\
-M  & Pc\_Martha & $50.0\rightarrow 2.5$ ($20\times$) & $6.7\rightarrow 2.0$ ($3\times$) & $164.6\rightarrow 184.4$ ($0.9\times$) & 2.9 \\
-M  & Pc\_Nahin  & $143.1\rightarrow 3.9$ ($36\times$) & $15.3\rightarrow 3.8$ ($4\times$) & $445.0\rightarrow 221.7$ ($2.0\times$) & 8.4 \\
-L  & Pc\_Jesus  & $79.1\rightarrow 3.2$ ($25\times$) & $11.5\rightarrow 1.0$ ($11\times$) & $232.8\rightarrow 129.4$ ($1.8\times$) & 2.6 \\
-L  & Pc\_Martha & $106.5\rightarrow 4.6$ ($23\times$) & $15.3\rightarrow 2.7$ ($6\times$) & $404.0\rightarrow 304.1$ ($1.3\times$) & 5.4 \\
-L  & Pc\_Nahin  & $288.1\rightarrow 6.0$ ($48\times$) & $25.9\rightarrow 6.5$ ($4\times$) & $776.9\rightarrow 483.8$ ($1.6\times$) & 5.4 \\
-XL & Pc\_Jesus  & $195.4\rightarrow 3.4$ ($57\times$) & $27.3\rightarrow 2.7$ ($10\times$) & $472.6\rightarrow 291.5$ ($1.6\times$) & 6.3 \\
-XL & Pc\_Martha & falló $\rightarrow 6.0$ & falló $\rightarrow 3.1$ & falló $\rightarrow 486.0$ & 10.6 \\
-XL & Pc\_Nahin  & $501.4\rightarrow 14.4$ ($35\times$) & $122.3\rightarrow 14.6$ ($8\times$) & ver nota \S\ref{sec:nota-nahin} & 14.8 \\
+M  & Pc\_Jesus  & $34.5$ a $0.7$ ($48\times$) & $5.0$ a $0.6$ ($8\times$) & $108.2$ a $61.7$ ($1.8\times$) & 8.4 \\
+M  & Pc\_Martha & $50.0$ a $2.5$ ($20\times$) & $6.7$ a $2.0$ ($3\times$) & $164.6$ a $184.4$ ($0.9\times$) & 2.9 \\
+M  & Pc\_Nahin  & $143.1$ a $3.9$ ($36\times$) & $15.3$ a $3.8$ ($4\times$) & $445.0$ a $221.7$ ($2.0\times$) & 8.4 \\
+L  & Pc\_Jesus  & $79.1$ a $3.2$ ($25\times$) & $11.5$ a $1.0$ ($11\times$) & $232.8$ a $129.4$ ($1.8\times$) & 2.6 \\
+L  & Pc\_Martha & $106.5$ a $4.6$ ($23\times$) & $15.3$ a $2.7$ ($6\times$) & $404.0$ a $304.1$ ($1.3\times$) & 5.4 \\
+L  & Pc\_Nahin  & $288.1$ a $6.0$ ($48\times$) & $25.9$ a $6.5$ ($4\times$) & $776.9$ a $483.8$ ($1.6\times$) & 5.4 \\
+XL & Pc\_Jesus  & $195.4$ a $3.4$ ($57\times$) & $27.3$ a $2.7$ ($10\times$) & $472.6$ a $291.5$ ($1.6\times$) & 6.3 \\
+XL & Pc\_Martha & falló a $6.0$ & falló a $3.1$ & falló a $486.0$ & 10.6 \\
+XL & Pc\_Nahin  & $501.4$ a $14.4$ ($35\times$) & $122.3$ a $14.6$ ($8\times$) & ver nota \S\ref{sec:nota-nahin} & 14.8 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-En Pc\_Jesus, versión XL, las mejoras por pregunta llegan a $110\times$ en Pandas Q2 (57.1 s $\rightarrow$ 0.52 s).
+En Pc\_Jesus, versión XL, las mejoras por pregunta llegan a $110\times$ en Pandas Q2 (57.1 s a 0.52 s).
 
 \subsection{Amortización del ETL}
 
