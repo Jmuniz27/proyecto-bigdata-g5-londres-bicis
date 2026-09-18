@@ -1,0 +1,17 @@
+{
+  "etiqueta": "nahin-laptop",
+  "so": "Windows 11",
+  "arquitectura": "AMD64",
+  "procesador": "Intel64 Family 6 Model 170 Stepping 4, GenuineIntel",
+  "nucleos_fisicos": 16,
+  "nucleos_logicos": 22,
+  "frecuencia_max": "2.30 GHz",
+  "ram_total_gb": 39.37,
+  "ram_disponible_gb": 25.42,
+  "disco_libre_gb": 1482.95,
+  "python": "3.14.0",
+  "pandas": "3.0.1",
+  "duckdb": "1.5.5",
+  "sqlite": "3.50.4",
+  "numpy": "2.4.3"
+}

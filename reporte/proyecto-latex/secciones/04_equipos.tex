@@ -1,0 +1,40 @@
+\section{Equipos de cómputo}
+
+El barrido se corrió en tres máquinas con perfiles deliberadamente distintos. Esa diversidad es lo que permite responder dónde empieza a ser Big Data, porque la respuesta cambia con el equipo.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ficha técnica de los equipos utilizados}
+\label{tab:equipos}
+\begin{tabularx}{\textwidth}{lXXrrX}
+\toprule
+Equipo & Sistema & Procesador & Núcleos (f/l) & RAM & Versiones corridas \\
+\midrule
+Pc\_Jesus  & macOS Darwin 27.0 (arm64) & Apple arm, 3.20 GHz & 8 / 8 & 8.0 GB & M, L, XL \\
+Pc\_Martha & Windows 11 (AMD64) & Intel i7 gen 13, 1.70 GHz & 10 / 12 & 15.7 GB & XS, S, M, L, XL \\
+Pc\_Nahin  & Windows 11 (AMD64) & Intel Core Ultra 9 185H, 2.30 GHz & 16 / 22 & 39.4 GB & M, L, XL \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Versiones de software}
+
+Las versiones no son idénticas entre equipos. La diferencia es menor frente a las brechas de orden de magnitud que se observan, pero se declara por transparencia.
+
+\begin{table}[htbp]
+\centering
+\caption{Versiones de software por equipo}
+\label{tab:software}
+\begin{tabular}{lccccc}
+\toprule
+Equipo & Python & pandas & duckdb & sqlite & numpy \\
+\midrule
+Pc\_Jesus  & 3.14.3  & 3.0.5 & 1.5.5 & 3.50.4 & 2.5.3 \\
+Pc\_Martha & 3.12.10 & 3.0.2 & 1.5.5 & 3.49.1 & 2.4.4 \\
+Pc\_Nahin  & 3.14.0  & 3.0.1 & 1.5.5 & 3.50.4 & 2.4.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las tres máquinas corren DuckDB 1.5.5, así que las diferencias de rendimiento entre ellas no se explican por la versión del motor analítico.

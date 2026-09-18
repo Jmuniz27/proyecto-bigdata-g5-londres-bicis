@@ -1,0 +1,32 @@
+\section{Problemas encontrados}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Problemas encontrados durante el desarrollo}
+\label{tab:problemas}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+\toprule
+\# & Problema & Cómo se resolvió \\
+\midrule
+1 & \textbf{Las tres herramientas numeran los días de la semana distinto.} Pandas \texttt{dt.dayofweek} arranca en lunes $=0$; DuckDB \texttt{dayofweek()} y SQLite \texttt{strftime('\%w')} arrancan en domingo $=0$. Los resultados no coincidían aunque el total sí. &
+Se unificó todo a lunes $=0$ con \texttt{isodow()-1} en DuckDB y \texttt{(strftime('\%w')+6)\%7} en SQLite. La validación cruzada se agregó justamente para cazar este tipo de error. \\
+2 & \textbf{\texttt{end\_station\_id} se infiere como \texttt{DOUBLE}} porque tiene nulos, mientras \texttt{start\_station\_id} es entero. Al agrupar por el par, los identificadores no cruzaban: \texttt{529.0} contra \texttt{529}. &
+\texttt{CAST(... AS BIGINT)} y \texttt{.astype(\textquotedbl int64\textquotedbl)} explícitos en las tres herramientas antes de agrupar. \\
+3 & \textbf{\texttt{FULL OUTER JOIN} no existe en SQLite anterior a la versión 3.39.} La consulta de Q2, escrita originalmente para DuckDB, fallaba con error de sintaxis en instalaciones de SQLite más antiguas durante el desarrollo. &
+Se reescribió con un CTE \texttt{ids} (unión de los identificadores de origen y destino) más dos \texttt{LEFT JOIN}, y se usó la misma forma en DuckDB para que las consultas fueran estructuralmente comparables. \\
+4 & \textbf{La ingesta a SQLite era lentísima} con el journal y el \texttt{fsync} por defecto. &
+\texttt{PRAGMA journal\_mode=OFF}, \texttt{synchronous=OFF}, \texttt{cache\_size=-262144} e inserción por lotes de 200,000 filas con \texttt{executemany}, en vez de un \texttt{INSERT} por fila. \\
+5 & \textbf{SQLite no conserva el CSV cargado entre consultas}, a diferencia de Pandas y DuckDB. &
+Se adoptó el protocolo de ejecución independiente y se aplicó a las tres herramientas, para que la comparación fuera simétrica. \\
+6 & \textbf{El import de \texttt{pyarrow} inflaba el tiempo de carga del Parquet.} Pandas lo carga de forma perezosa en el primer \texttt{read\_parquet()}, y ese import en frío se contabilizaba como tiempo de lectura de datos. &
+Se movió el import fuera de todo bloque cronometrado. \\
+7 & \textbf{Los artefactos pesados en carpetas sincronizadas distorsionaban los tiempos.} La sincronización en segundo plano compite por I/O. &
+Los \texttt{.db} y \texttt{.parquet} se escriben en disco local, no en la carpeta de nube. \\
+8 & \textbf{Pc\_Martha (15.7 GB) falló en XL tras 17 minutos} sin llegar a completar la lectura del CSV. &
+Se registró como resultado, no como error a corregir: es el dato que define el umbral de Big Data para ese equipo. Se corrió una segunda pasada sin XL para obtener la serie completa de las demás versiones. \\
+9 & \textbf{La gráfica de impacto suma tiempos sin verificar que ambas etapas tengan las mismas preguntas completadas.} Cuando una etapa tiene ejecuciones omitidas, la barra de la línea base queda artificialmente corta y sugiere que la optimización empeoró el rendimiento. &
+Se detectó en el caso de SQLite en XL sobre Pc\_Nahin y se corrigió comparando pregunta contra pregunta. La comparación válida está en la Fase 3 (\S\ref{sec:nota-nahin}). \\
+\bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,17 @@
+{
+  "etiqueta": "equipo-3-i7",
+  "so": "Windows 11",
+  "arquitectura": "AMD64",
+  "procesador": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+  "nucleos_fisicos": 10,
+  "nucleos_logicos": 12,
+  "frecuencia_max": "1.70 GHz",
+  "ram_total_gb": 15.72,
+  "ram_disponible_gb": 6.45,
+  "disco_libre_gb": 105.07,
+  "python": "3.12.10",
+  "pandas": "3.0.2",
+  "duckdb": "1.5.5",
+  "sqlite": "3.49.1",
+  "numpy": "2.4.4"
+}

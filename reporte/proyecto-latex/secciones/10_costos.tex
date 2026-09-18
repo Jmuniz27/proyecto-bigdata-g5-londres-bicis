@@ -1,0 +1,58 @@
+\section{Análisis de costos}
+\label{sec:costos}
+
+El análisis cubre dos cosas distintas: el costo de operar el pipeline ETL propuesto en la Sección \ref{sec:pipeline} sobre AWS, y el costo ya medido de la optimización de la Fase 3. Los precios son los públicos de AWS para la región \texttt{us-east-1} (N. Virginia), consultados en septiembre de 2026; no se espera exactitud, sino que el desglose sea razonable y esté sustentado.
+
+\textbf{Supuestos del escenario:}
+
+\begin{itemize}
+  \item Proveedor: AWS, región us-east-1. Precios bajo demanda (\emph{on-demand}), sin descuentos por compromiso.
+  \item Frecuencia: batch mensual. Cada corrida ingiere un archivo del tamaño de la versión S (0.488 GB, 3.97 millones de filas), que es el ritmo de crecimiento asumido para el dataset real.
+  \item Estado estable: mes 10, cuando el acumulado en la capa bronce alcanza el tamaño de la versión XL (4.725 GB), la más grande medida en este trabajo.
+  \item La capa plata mantiene la razón de reducción de la Fase 3 ($53\times$ frente al CSV), así que el Parquet acumulado en el mes 10 pesa $\sim$89 MB.
+\end{itemize}
+
+\subsection{Costo del pipeline en la nube (mensual, estado estable)}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Desglose de costo mensual del pipeline en AWS, mes 10 (estado estable)}
+\label{tab:costos-nube}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.1cm}Xrc}
+\toprule
+Componente & Cálculo & Costo/mes & Fuente \\
+\midrule
+Almacenamiento S3 (bronce+plata+oro) & $(4.725 + 0.089 + 0.005)$ GB $\times \$0.023$/GB & \$0.111 & \href{https://aws.amazon.com/s3/pricing/}{[1]} \\
+Solicitudes S3 (PUT/GET mensuales) & $\sim$50 PUT $\times \$0.005/1000$ + $\sim$5{,}000 GET $\times \$0.0004/1000$ & \$0.002 & \href{https://aws.amazon.com/s3/pricing/}{[1]} \\
+Cómputo ETL (AWS Glue, 1 corrida/mes) & 2 DPU $\times$ 10 min $\times \$0.44$/DPU-hora & \$0.147 & \href{https://aws.amazon.com/glue/pricing/}{[2]} \\
+Orquestación (EventBridge + Step Functions) & Dentro de la capa gratuita a este volumen & \$0.000 & \href{https://aws.amazon.com/eventbridge/pricing/}{[3]} \\
+Catálogo de esquema (Glue Data Catalog) & Dentro del millón de objetos gratuitos & \$0.000 & \href{https://aws.amazon.com/glue/pricing/}{[2]} \\
+Consulta (Amazon Athena) & $\sim$2 GB escaneados/mes $\times \$5$/TB & \$0.010 & \href{https://aws.amazon.com/athena/pricing/}{[4]} \\
+Transferencia de salida & Muy por debajo de los 100 GB/mes gratuitos & \$0.000 & \href{https://aws.amazon.com/ec2/pricing/on-demand/}{[5]} \\
+\midrule
+\textbf{Total estimado} & & \textbf{\$0.27/mes} & \\
+\bottomrule
+\end{tabularx}
+\vspace{0.3em}
+{\footnotesize [1] \url{aws.amazon.com/s3/pricing} \quad [2] \url{aws.amazon.com/glue/pricing} \quad [3] \url{aws.amazon.com/eventbridge/pricing} \quad [4] \url{aws.amazon.com/athena/pricing} \quad [5] \url{aws.amazon.com/ec2/pricing/on-demand}}
+\end{table}
+
+El total es minúsculo (menos de \$4 al año) porque todo el histórico del dataset cabe en menos de 5 GB. Esa es en sí misma una conclusión relevante: \textbf{a esta escala, el costo de nube no es un problema}; lo que domina el presupuesto es la decisión de diseño (Parquet vs. CSV, Glue serverless vs. un clúster fijo), no el gasto en infraestructura. Esto es consistente con el hallazgo de la Fase 3: la representación de los datos importa más que la cantidad de recursos que se les asigna.
+
+\textbf{Sensibilidad a la escala.} Si el sistema creciera 200 veces (varias ciudades, varios años, $\sim$1 TB acumulado), el almacenamiento en bronce pasaría a $1{,}024\text{ GB} \times \$0.023 \approx \$23.6$/mes y el job de Glue pasaría de 10 minutos a un orden de magnitud más por corrida. El costo dejaría de ser trivial, pero seguiría siendo pequeño frente al costo de mantener SQLite sin optimizar corriendo minutos por consulta, como se documentó en la Fase 3.
+
+\subsection{Costo ya medido: cómputo local y tiempo de persona}
+
+\textbf{Costo en almacenamiento (medido).} El CSV original de la versión XL pesa 4,725 MB. El Parquet optimizado pesa 89 MB y el CSV estrecho para SQLite pesa 442 MB. La reducción es de $53\times$ y $10.7\times$ respectivamente.
+
+\textbf{Costo en cómputo local (medido).} El ETL de la Fase 3 cuesta entre 2.6 s y 14.8 s según la máquina y la versión. El ahorro por corrida completa del análisis va de 24.6 s (DuckDB, XL) a 191.9 s (Pandas, XL). La amortización ocurre en una fracción de la primera corrida.
+
+\textbf{Costo en tiempo de persona.} Pc\_Martha perdió 17 minutos en una ejecución que terminó fallando. Ese tipo de costo no aparece en ninguna tabla de benchmark ni en la tabla de costos de nube, pero es real y recurrente cada vez que alguien reproduce el análisis sin el artefacto optimizado.
+
+\textbf{Pendiente de decidir por el equipo:}
+
+\begin{itemize}
+  \item Validar los supuestos de frecuencia y tamaño de la carga incremental contra el enunciado, si este especifica algo distinto
+  \item Decidir si conviene reservar capacidad de Athena o Glue Flex si el volumen de consultas crece
+\end{itemize}

@@ -1,0 +1,34 @@
+\section{Dataset y versiones}
+
+La fuente es el conjunto \href{https://www.kaggle.com/datasets/ajohrn/bikeshare-usage-in-london-and-taipei-network}{Bikeshare usage in London and Taipei} de Kaggle. \textbf{El alcance de este trabajo es únicamente la red de Londres}; los datos de Taipéi quedan fuera por decisión de equipo.
+
+Se trabajó con el histórico de viajes en cinco versiones de tamaño creciente, más \texttt{london\_stations.csv}, un catálogo de 802 estaciones con nombre, latitud y longitud.
+
+\begin{table}[htbp]
+\centering
+\caption{Versiones disponibles del dataset}
+\label{tab:versiones}
+\begin{tabular}{lrrrr}
+\toprule
+Versión & Archivo & Tamaño (GB) & Filas & Factor vs. XS \\
+\midrule
+XS & \texttt{london\_xs.csv} & 0.049 & 398,075 & $1.0\times$ \\
+S  & \texttt{london\_s.csv}  & 0.488 & 3,972,436 & $10.0\times$ \\
+M  & \texttt{london\_m.csv}  & 1.181 & 9,590,698 & $24.1\times$ \\
+L  & \texttt{london\_l.csv}  & 2.363 & 19,148,881 & $48.1\times$ \\
+XL & \texttt{london.csv}     & 4.725 & 38,215,560 & $96.0\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El esquema tiene nueve columnas: \texttt{rental\_id}, \texttt{duration}, \texttt{bike\_id}, \texttt{start\_rental\_date\_time}, \texttt{end\_rental\_date\_time}, \texttt{start\_station\_id}, \texttt{start\_station\_name}, \texttt{end\_station\_id}, \texttt{end\_station\_name}.
+
+La exploración inicial, hecha con DuckDB en streaming para no cargar los archivos grandes en memoria, detectó tres problemas de calidad:
+
+\begin{itemize}
+  \item \texttt{end\_station\_id} tiene nulos, que corresponden a viajes sin devolución registrada. Se excluyen de las llegadas y de los pares origen-destino.
+  \item \texttt{duration} contiene ceros y valores extremos de varios días. No intervienen en las tres preguntas, pero se documentan.
+  \item \texttt{start\_station\_id} es entero mientras \texttt{end\_station\_id} se infiere como \texttt{DOUBLE} por causa de los nulos. Hay que castear explícitamente para que los identificadores comparen igual en las tres herramientas.
+\end{itemize}
+
+El rango de fechas cambia con la versión: las versiones chicas cubren pocas semanas y las grandes cubren más meses. Eso altera la interpretación de la estacionalidad, no el método.

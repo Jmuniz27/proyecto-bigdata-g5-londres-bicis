@@ -1,0 +1,11 @@
+\section{Limitaciones metodológicas}
+
+Tres advertencias que condicionan cómo deben leerse los números de este informe.
+
+\textbf{El pico de RAM no es comparable entre macOS y Windows.} Pandas en la versión XL reporta 4,522 MB en Pc\_Jesus y 12,096 MB en Pc\_Nahin, para el mismo código y los mismos datos. La diferencia es demasiado grande para ser real: macOS comprime páginas de memoria y el valor de RSS que reporta \texttt{psutil} no las contabiliza. Los números de RAM son válidos para comparar herramientas \textbf{dentro} de una misma máquina, no entre sistemas operativos distintos.
+
+\textbf{El equipo de mayores especificaciones fue el más lento.} Pc\_Nahin, con Core Ultra 9 y 40 GB, tarda de 2 a 4 veces más que Pc\_Jesus, de 8 GB, en todas las herramientas, incluida la carga pura de CSV con DuckDB (36 s contra 8 s en XL). Esa es una brecha de entrada/salida, no de CPU ni de memoria. Las causas plausibles son que el archivo estuviera en una carpeta sincronizada con la nube, que el antivirus escaneara un archivo de 4.7 GB en cada lectura, o que las tres versiones se corrieran en una sola sesión sin liberar memoria entre ellas. \textbf{No se verificó cuál de las tres aplica}, así que los tiempos absolutos de ese equipo deben tomarse como cota superior.
+
+\textbf{Las versiones de librerías difieren entre equipos.} Python va de 3.12.10 a 3.14.3 y pandas de 3.0.1 a 3.0.5. Es improbable que explique diferencias de orden de magnitud, pero introduce ruido en las comparaciones finas entre máquinas.
+
+Las conclusiones de este informe se apoyan en diferencias de órdenes de magnitud y en fallos categóricos, no en márgenes estrechos, precisamente porque estas tres limitaciones hacen que los márgenes estrechos no sean defendibles.

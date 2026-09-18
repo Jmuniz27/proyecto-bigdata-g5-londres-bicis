@@ -1,0 +1,13 @@
+\section{Resumen ejecutivo}
+
+Tres motores de datos con arquitecturas distintas responden las mismas tres preguntas analíticas sobre 38.2 millones de viajes del sistema público de bicicletas de Londres, medidos en tres computadoras y en dos etapas: leyendo el CSV original y leyendo un artefacto pre-procesado.
+
+Se compararon \textbf{Pandas} (DataFrame en memoria, columnar sobre NumPy, mono-hilo), \textbf{DuckDB} (motor OLAP columnar embebido, vectorizado y multi-hilo) y \textbf{SQLite} (motor OLTP embebido, orientado a filas). Cada combinación de versión, herramienta y pregunta se ejecutó de forma independiente, cargando el archivo desde cero, con un presupuesto de 10 minutos por ejecución.
+
+Tres hallazgos sostienen el trabajo:
+
+\begin{enumerate}
+  \item \textbf{El umbral de Big Data no es una cifra de filas ni de gigabytes.} La versión XL resultó imposible en una máquina de 15.7 GB de RAM y perfectamente manejable en una de 8 GB. Big Data es una propiedad de la relación entre datos, representación y hardware.
+  \item \textbf{Cambiar la representación mueve ese umbral sin tocar el hardware.} El equipo que falló leyendo el CSV de 4.7 GB completó la misma carga de trabajo en 6.0 segundos sobre el artefacto optimizado.
+  \item \textbf{La arquitectura de almacenamiento pesa más que las especificaciones.} DuckDB resolvió el dataset completo en 2.7 segundos en la máquina de menor RAM del grupo, mientras SQLite necesitaba varios minutos en la de 40 GB. Un índice B-tree no convierte un motor OLTP en columnar.
+\end{enumerate}

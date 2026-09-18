@@ -1,0 +1,57 @@
+\section{Metodología}
+
+\subsection{Las tres preguntas}
+
+\begin{table}[htbp]
+\centering
+\caption{Preguntas analíticas del proyecto}
+\label{tab:preguntas}
+\begin{tabularx}{\textwidth}{clX}
+\toprule
+\# & Pregunta & Salida \\
+\midrule
+Q1 & ¿Cómo varía la demanda de viajes por hora del día y día de la semana? & 168 combinaciones día $\times$ hora \\
+Q2 & ¿Qué estaciones tienen mayor desequilibrio entre llegadas y salidas? & 808 estaciones con actividad \\
+Q3 & ¿Existen rutas origen-destino que concentran gran parte del tráfico? & 510,672 rutas distintas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Las tres herramientas}
+
+\begin{table}[htbp]
+\centering
+\caption{Herramientas comparadas}
+\label{tab:herramientas}
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+Herramienta & Arquitectura & Por qué está en la comparación \\
+\midrule
+Pandas & DataFrame en memoria, columnar sobre NumPy, mono-hilo & Caso base: rápido mientras el dataset quepa en RAM \\
+DuckDB & Motor OLAP columnar embebido, vectorizado y multi-hilo & Diseñado exactamente para este tipo de agregación \\
+SQLite & Motor OLTP embebido, orientado a filas & Misma interfaz SQL, arquitectura de almacenamiento opuesta \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+SQLite es la tercera herramienta y aporta el contraste más informativo del trabajo: comparte el lenguaje con DuckDB pero no su modelo de almacenamiento, así que aísla el efecto de la arquitectura frente al del lenguaje de consulta.
+
+\subsection{Protocolo de ejecución independiente}
+
+Cada combinación de versión, herramienta y pregunta es una \textbf{ejecución independiente que arranca desde el archivo}: se carga desde cero y después se corre la consulta. El tiempo reportado es carga $+$ query, y ese es el número que se compara contra el límite de 10 minutos.
+
+La razón es que SQLite no conserva el archivo cargado entre consultas, a diferencia de Pandas, que mantiene el DataFrame en RAM, y de DuckDB, que mantiene la tabla en memoria. Aplicar el mismo protocolo a las tres evita que alguna se beneficie de reutilizar una carga que otra tuvo que repetir.
+
+Otras reglas que sostienen la honestidad de la medición:
+
+\begin{itemize}
+  \item La carga a SQLite \textbf{no usa Pandas}. Se lee el CSV en streaming con el módulo \texttt{csv} de la librería estándar y se inserta por lotes de 200,000 filas con \texttt{executemany}. Usar \texttt{df.to\_sql()} mediría a Pandas disfrazado de SQLite.
+  \item DuckDB \textbf{materializa} la tabla con \texttt{CREATE TABLE ... AS SELECT}, en vez de leer el CSV de forma perezosa, para competir en igualdad de condiciones con \texttt{pd.read\_csv()}.
+  \item La base SQLite se crea desde cero en cada ejecución y se borra al terminar.
+  \item El pico de RAM se captura con un hilo que muestrea el proceso cada 50 ms. Medir solo antes y después perdería el pico transitorio que ocurre dentro de la lectura.
+  \item Los días de la semana se normalizan a lunes $=0$ en las tres herramientas, porque cada motor los numera distinto.
+\end{itemize}
+
+\subsection{Validación cruzada}
+
+Un benchmark solo vale si las tres herramientas responden lo mismo. Los resultados se comparan celda a celda contra Pandas como referencia, con tolerancia numérica en las columnas de porcentaje, y se verifica el cuadre aritmético: la suma de viajes de Q1 debe igualar el número de filas del archivo, y las llegadas de Q2 deben igualar el total de Q3. \textbf{Las tres herramientas produjeron resultados idénticos en todas las versiones que completaron.}

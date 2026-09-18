@@ -1,0 +1,33 @@
+\section{Comparación entre equipos}
+
+Esta es la sección que responde la pregunta central del módulo: \textbf{¿en qué punto un problema se vuelve Big Data?} La respuesta que arrojan las mediciones es que no existe un punto, sino un umbral distinto por máquina y por representación de los datos.
+
+\subsection{Dónde se rompe cada máquina}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Punto de quiebre por equipo}
+\label{tab:quiebre}
+\begin{tabularx}{\textwidth}{lrXX}
+\toprule
+Equipo & RAM & Punto de quiebre en línea base & Con el artefacto optimizado \\
+\midrule
+Pc\_Jesus  & 8.0 GB & Ninguno. Completó M, L y XL en las tres herramientas & Completó todo \\
+Pc\_Martha & 15.7 GB & \textbf{Falló en XL a los 17 minutos}, antes de terminar de leer el CSV & Completó XL en 6.0 s con Pandas \\
+Pc\_Nahin  & 39.4 GB & SQLite cruzó los 10 minutos en XL Q2 (678.7 s) y arrastró la omisión de Q3 & Completó las tres preguntas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Las tres lecturas}
+
+\textbf{La máquina con menos RAM sobrevivió donde una con el doble falló.} El MacBook de 8 GB completó la versión XL en las tres herramientas, mientras el equipo de 15.7 GB abortó leyendo el mismo archivo. La memoria unificada y la velocidad del SSD compensaron la diferencia nominal de RAM. Esto descarta la lectura ingenua de que más memoria significa mayor capacidad de procesamiento.
+
+\textbf{Cambiar la representación movió el umbral sin tocar el hardware.} La misma Pc\_Martha que no pudo leer el CSV de 4.7 GB procesó la versión XL en 6.0 segundos sobre el Parquet. El dataset no cambió, la máquina no cambió, solo cambió cómo estaban escritos los bytes. Si el umbral de Big Data se puede mover con un paso de ETL, entonces el umbral nunca fue una propiedad del dataset.
+
+\textbf{La arquitectura del motor domina sobre las especificaciones del equipo.} DuckDB en la máquina de 8 GB (2.7 s en XL optimizado) superó ampliamente a SQLite en la máquina de 40 GB (varios minutos). Estructurar bien los datos y elegir un motor analítico adecuado rinde más que agregar memoria.
+
+\subsection{Escalado}
+
+En escala logarítmica, una recta de pendiente 1 indica escalado lineal $O(n)$. Lo relevante no es la pendiente sino dónde se rompe la linealidad: cuando los datos dejan de caber cómodamente en RAM, el sistema pagina a disco y la curva se dispara. Ese quiebre es distinto en cada máquina y es, precisamente, la frontera del Big Data para ese equipo.

@@ -1,0 +1,109 @@
+% Rúbrica del curso: máximo 20 páginas, 1 columna, tamaño de fuente 12
+\documentclass[12pt,a4paper]{article}
+
+% ---------- Idioma y codificación ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\decimalpoint % todas las cifras del reporte usan punto decimal, no coma
+
+% ---------- Página ----------
+\usepackage[margin=2.0cm]{geometry}
+\setlength{\emergencystretch}{3em}
+\sloppy
+
+% ---------- Tablas ----------
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+
+% ---------- Figuras ----------
+\usepackage{graphicx}
+\usepackage{float}
+
+% ---------- Código ----------
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{sql}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  backgroundcolor=\color{gray!8},
+  keywordstyle=\color{blue!60!black}\bfseries,
+  commentstyle=\color{green!40!black},
+  showstringspaces=false
+}
+\lstset{style=sql}
+
+% ---------- Cuadros de advertencia (secciones pendientes) ----------
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{pendiente}{
+  colback=yellow!10,
+  colframe=yellow!50!black,
+  boxrule=0.5pt,
+  breakable,
+  title={Sección pendiente}
+}
+
+% ---------- Diagramas TikZ ----------
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+
+% ---------- Símbolos y math ----------
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ---------- Hipervínculos (al final del preámbulo) ----------
+\usepackage[colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!50!black, citecolor=blue!50!black]{hyperref}
+
+\begin{document}
+
+% ---------- Portada (armada a mano para controlar el tamaño de fuente) ----------
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+{\LARGE Proyecto Big Data G5: Uso de Bicicletas (Londres)} \\[0.5em]
+{\large Módulo: Ingeniería y Analítica de Grandes Cantidades de Datos}
+
+\vspace{1.5cm}
+{\normalsize Grupo 5}
+
+\vspace{0.8cm}
+{\normalsize
+\begin{tabular}{cc}
+Cevallos Vinces Nahin Jussephe & Sanchez Guzman Annabella Noelia \\[0.5em]
+Martha Maritza Duran Navarrete & Suarez Aspiazu Jesus David \\[0.5em]
+Martin Pimentel Isabella Ivonne & Zurita Guerrero Angelo Saul \\[0.5em]
+\multicolumn{2}{c}{Munizaga Torres Juan Andres}
+\end{tabular}
+}
+
+\vspace{1.5cm}
+{\normalsize 18 de septiembre de 2026}
+\end{center}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{secciones/01_resumen}
+\input{secciones/02_dataset}
+\input{secciones/03_metodologia}
+\input{secciones/04_equipos}
+\input{secciones/05_fase2}
+\input{secciones/06_fase3}
+\input{secciones/07_comparacion}
+\input{secciones/08_respuestas}
+\input{secciones/09_pipeline}
+\input{secciones/10_costos}
+\input{secciones/11_problemas}
+\input{secciones/12_limitaciones}
+\input{secciones/13_conclusiones}
+
+\end{document}

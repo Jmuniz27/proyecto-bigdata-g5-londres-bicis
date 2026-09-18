@@ -1,0 +1,17 @@
+{
+  "etiqueta": "jesus-macbook",
+  "so": "Darwin 27.0.0",
+  "arquitectura": "arm64",
+  "procesador": "arm",
+  "nucleos_fisicos": 8,
+  "nucleos_logicos": 8,
+  "frecuencia_max": "3.20 GHz",
+  "ram_total_gb": 8.0,
+  "ram_disponible_gb": 1.93,
+  "disco_libre_gb": 23.97,
+  "python": "3.14.3",
+  "pandas": "3.0.5",
+  "duckdb": "1.5.5",
+  "sqlite": "3.50.4",
+  "numpy": "2.5.3"
+}

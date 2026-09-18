@@ -1,0 +1,17 @@
+{
+  "etiqueta": "equipo-1",
+  "so": "Windows 10",
+  "arquitectura": "AMD64",
+  "procesador": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+  "nucleos_fisicos": 8,
+  "nucleos_logicos": 16,
+  "frecuencia_max": "3.80 GHz",
+  "ram_total_gb": 31.31,
+  "ram_disponible_gb": 10.52,
+  "disco_libre_gb": 1350.77,
+  "python": "3.11.0",
+  "pandas": "3.0.1",
+  "duckdb": "1.5.5",
+  "sqlite": "3.38.4",
+  "numpy": "2.4.4"
+}
