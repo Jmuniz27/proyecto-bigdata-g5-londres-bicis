@@ -23,12 +23,13 @@ XL & \texttt{london.csv}     & 4.725 & 38,215,560 & $96.0\times$ \\
 
 El esquema tiene nueve columnas: \texttt{rental\_id}, \texttt{duration}, \texttt{bike\_id}, \texttt{start\_rental\_date\_time}, \texttt{end\_rental\_date\_time}, \texttt{start\_station\_id}, \texttt{start\_station\_name}, \texttt{end\_station\_id}, \texttt{end\_station\_name}.
 
-La exploración inicial, hecha con DuckDB en streaming para no cargar los archivos grandes en memoria, detectó tres problemas de calidad:
+La exploración inicial, hecha con DuckDB en streaming para no cargar los archivos grandes en memoria, detectó cuatro problemas de calidad:
 
 \begin{itemize}
   \item \texttt{end\_station\_id} tiene nulos, que corresponden a viajes sin devolución registrada. Se excluyen de las llegadas y de los pares origen-destino.
   \item \texttt{duration} contiene ceros y valores extremos de varios días. No intervienen en las tres preguntas, pero se documentan.
   \item \texttt{start\_station\_id} es entero mientras \texttt{end\_station\_id} se infiere como \texttt{DOUBLE} por causa de los nulos. Hay que castear explícitamente para que los identificadores comparen igual en las tres herramientas.
+  \item El catálogo tiene 802 estaciones, pero Q2 y Q3 (Sección \ref{sec:respuestas}) reportan 808 identificadores de estación distintos. Esa cifra sale directo de los \texttt{station\_id} que aparecen como origen o destino en los viajes, no del catálogo: hay estaciones en el historial que no están en \texttt{london\_stations.csv}, probablemente dadas de baja, agregadas después, o puntos temporales como el Aquatic Centre del Olympic Park que aparece en Q3. No afecta ningún cálculo, porque Q2 y Q3 nunca cruzan contra el catálogo.
 \end{itemize}
 
 El rango de fechas cambia con la versión: las versiones chicas cubren pocas semanas y las grandes cubren más meses. Eso altera la interpretación de la estacionalidad, no el método.
