@@ -3,12 +3,13 @@
 Un paso de ETL ejecutado una sola vez por versión reduce el tiempo de análisis entre $10\times$ y $110\times$, y se amortiza antes de completar una sola corrida.
 
 \subsection{Diagnóstico}
+\label{sec:fase3-diagnostico}
 
 De la Fase 2 salen cuatro hechos que definen qué optimizar:
 
 \begin{enumerate}
   \item La carga domina el tiempo total, y como cada pregunta recarga el archivo, ese costo se paga tres veces.
-  \item Se leen nueve columnas y solo se usan tres: \texttt{start\_rental\_date\_time}, \texttt{start\_station\_id} y \texttt{end\_station\_id}. Las dos columnas de nombres de estación son las más pesadas y además son redundantes, porque ya están normalizadas en el catálogo.
+  \item Se leen nueve columnas y solo se usan tres: \texttt{start\_rental\_date\_time}, \texttt{start\_station\_id} y \texttt{end\_station\_id}. Las dos columnas de nombres de estación son las más pesadas y en general son redundantes, porque ya están normalizadas en el catálogo. La excepción son las 7 estaciones sin entrada en \texttt{london\_stations.csv} (Sección \ref{sec:dataset}): para esas, la columna de nombre es la única fuente y su valor se pierde de forma irrecuperable al proyectar a 4 columnas.
   \item Los tipos están sobredimensionados. Los identificadores de estación llegan a $\sim$800 y viven en \texttt{INT64} o \texttt{DOUBLE}; la hora y el día se recalculan desde el timestamp en cada consulta.
   \item SQLite recorre filas completas y parsea timestamps con \texttt{strftime} registro por registro.
 \end{enumerate}

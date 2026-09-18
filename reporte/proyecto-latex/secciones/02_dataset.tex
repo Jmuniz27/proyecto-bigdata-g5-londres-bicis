@@ -1,4 +1,5 @@
 \section{Dataset y versiones}
+\label{sec:dataset}
 
 La fuente es el conjunto \href{https://www.kaggle.com/datasets/ajohrn/bikeshare-usage-in-london-and-taipei-network}{Bikeshare usage in London and Taipei} de Kaggle. \textbf{El alcance de este trabajo es únicamente la red de Londres}; los datos de Taipéi quedan fuera por decisión de equipo.
 
@@ -29,7 +30,7 @@ La exploración inicial, hecha con DuckDB en streaming para no cargar los archiv
   \item \texttt{end\_station\_id} tiene nulos, que corresponden a viajes sin devolución registrada. Se excluyen de las llegadas y de los pares origen-destino.
   \item \texttt{duration} contiene ceros y valores extremos de varios días. No intervienen en las tres preguntas, pero se documentan.
   \item \texttt{start\_station\_id} es entero mientras \texttt{end\_station\_id} se infiere como \texttt{DOUBLE} por causa de los nulos. Hay que castear explícitamente para que los identificadores comparen igual en las tres herramientas.
-  \item El catálogo tiene 802 estaciones, pero Q2 y Q3 (Sección \ref{sec:respuestas}) reportan 808 identificadores de estación distintos. Esa cifra sale directo de los \texttt{station\_id} que aparecen como origen o destino en los viajes, no del catálogo: hay estaciones en el historial que no están en \texttt{london\_stations.csv}, probablemente dadas de baja, agregadas después, o puntos temporales como el Aquatic Centre del Olympic Park que aparece en Q3. No afecta ningún cálculo, porque Q2 y Q3 nunca cruzan contra el catálogo.
+  \item El catálogo tiene 802 estaciones, pero Q2 y Q3 (Sección \ref{sec:respuestas}) reportan 808 identificadores de estación distintos, porque esa cifra sale directo de los \texttt{station\_id} que aparecen como origen o destino en los viajes, no del catálogo. Siete \texttt{station\_id} (391, 346, 304, 434, 241, 825, 823) no están en \texttt{london\_stations.csv}; la 391 por sí sola acumula 9,050 viajes. El join contra el catálogo es left join y las rellena con la etiqueta \texttt{(estación N)}, así que no rompen Q2 ni Q3, pero al no tener latitud ni longitud quedan fuera de la Figura \ref{fig:q2-mapa} (la estación 391 incluida), y su nombre se pierde de forma irrecuperable en la proyección a 4 columnas de la Fase 3 (Sección \ref{sec:fase3-diagnostico}).
 \end{itemize}
 
 El rango de fechas cambia con la versión: las versiones chicas cubren pocas semanas y las grandes cubren más meses. Eso altera la interpretación de la estacionalidad, no el método.
