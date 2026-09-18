@@ -3,7 +3,7 @@
 
 El enunciado pide únicamente el diagrama, sin implementación. Lo que sigue es la propuesta, sobre Databricks + Azure.
 
-\textbf{Propósito: un sistema de rebalanceo predictivo.} El problema de negocio sale de la Sección \ref{sec:respuestas}: hoy los camiones de rebalanceo se despachan de forma reactiva, cuando alguien reporta una estación sin bicicletas o sin anclajes libres. El desbalance medido no es aleatorio: Waterloo Station~2 pierde 38,451 bicicletas netas, Hop Exchange acumula 60,814 de exceso, y Angel se vacía sistemáticamente cada mañana. El patrón es estable y, por lo tanto, predecible.
+\textbf{Propósito: un sistema de rebalanceo predictivo.} El problema de negocio sale de la Sección \ref{sec:respuestas}: sin un sistema así, el rebalanceo es reactivo, los camiones salen cuando alguien reporta una estación sin bicicletas o sin anclajes libres. El desbalance medido no es aleatorio: Waterloo Station~2 pierde 38,451 bicicletas netas, Hop Exchange acumula 60,814 de exceso, y Angel se vacía sistemáticamente cada mañana. El patrón es estable y, por lo tanto, predecible.
 
 El pipeline convierte el flujo mensual de viajes en \textbf{órdenes de rebalanceo}: cruza el desequilibrio por estación (Q2) con el perfil horario (Q1) para estimar cuántas bicicletas faltarán o sobrarán en cada estación y franja del día, y con la matriz origen-destino (Q3) identifica el corredor que lo causa. La salida es accionable: qué estaciones visitar, en qué orden y cuántas bicicletas mover, dentro de la ventana 00:00--05:00~h (2\% del tráfico). Las tres preguntas dejan de ser un ejercicio y pasan a ser las tablas de la capa oro que alimentan esa decisión.
 
@@ -43,7 +43,7 @@ Se asume ingesta periódica: un archivo mensual de viajes nuevos, tamaño simila
 
   \node[storebox, right=of F] (G)
     {\includegraphics[width=0.9cm]{figuras/azure-icons/azure.png}\\[2pt]
-     Oro\\ ADLS Gen2 \texttt{gold/}\\ Q1 Q2 Q3};
+     Oro\\ ADLS Gen2 \texttt{gold/}\\ Q1 Q2 Q3 + órdenes};
 
   \node[storebox, above=of D, fill=green!5] (H)
     {\includegraphics[width=0.9cm]{figuras/azure-icons/azure.png}\\[2pt]
@@ -88,12 +88,12 @@ Ingesta / Bronce & ADLS Gen2 (contenedor \texttt{bronze/}) & Almacenamiento jer�
 Limpieza y transformación & Databricks Jobs (notebook PySpark) & Motor Spark administrado que resuelve casteo, nulos y proyección a 4 columnas. Es el mismo trabajo de Fase 3, escalado a un job programado. \\
 Plata & ADLS Gen2 (\texttt{silver/}), Delta Lake & Sigue la decisión de Fase 3, con $53\times$ de reducción frente al CSV. Delta añade versionado y transacciones ACID sobre ese mismo Parquet. \\
 Catálogo de esquema & Unity Catalog & Registra el esquema de plata y oro con control de acceso centralizado, sin definir tablas a mano. \\
-Agregación / Oro & Databricks Jobs (mismo notebook) & Calcula Q1, Q2 y Q3 y las escribe como Delta pequeño en \texttt{gold/}. \\
-Consumo & Databricks SQL (Serverless) + Power BI & El warehouse arranca en segundos, se apaga solo tras inactividad y cobra por segundo activo. Evita mantener un clúster SQL encendido para tan pocas consultas. \\
+Agregación / Oro & Databricks Jobs (mismo notebook) & Calcula Q1, Q2 y Q3, las cruza en la tabla de órdenes de rebalanceo (estación, franja, bicicletas a mover) y escribe todo como Delta pequeño en \texttt{gold/}. \\
+Consumo & Databricks SQL (Serverless) + Power BI & El equipo de rebalanceo consulta las órdenes en un tablero. El warehouse arranca en segundos, se apaga solo tras inactividad y cobra por segundo activo. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La capa de limpieza es donde se resuelven los tres problemas de calidad detectados en la exploración: el casteo de \texttt{end\_station\_id} a entero, el tratamiento de los nulos de destino y el marcado de duraciones anómalas. La capa plata materializa la proyección de cuatro columnas con tipos reducidos que produjo las mejoras de la Fase 3.
+La capa de limpieza es donde se resuelven los cuatro problemas de calidad detectados en la exploración: el casteo de \texttt{end\_station\_id} a entero, el tratamiento de los nulos de destino, el marcado de duraciones anómalas y el left join contra el catálogo con etiqueta de respaldo para las estaciones que no figuran en él. La capa plata materializa la proyección de cuatro columnas con tipos reducidos que produjo las mejoras de la Fase 3.
 
-La nomenclatura de capas es medallón (bronce/plata/oro), el estándar de facto para pipelines de ingesta incremental sobre un lakehouse. El catálogo de estaciones se une en la capa plata, durante la misma limpieza que resuelve los tres problemas de calidad: las tres preguntas lo necesitan, y unirlo ahí evita repetir el join en la capa oro. Los datos se particionan por año-mes de \texttt{start\_rental\_date\_time}, alineado con la cadencia mensual de ingesta, así que cada corrida del job solo toca la partición del mes que entra.
+La nomenclatura de capas es medallón (bronce/plata/oro), el estándar de facto para pipelines de ingesta incremental sobre un lakehouse. El catálogo de estaciones se une en la capa plata, durante la misma limpieza: las tres preguntas lo necesitan, y unirlo ahí evita repetir el join en la capa oro. Los datos se particionan por año-mes de \texttt{start\_rental\_date\_time}, alineado con la cadencia mensual de ingesta, así que cada corrida del job solo toca la partición del mes que entra.

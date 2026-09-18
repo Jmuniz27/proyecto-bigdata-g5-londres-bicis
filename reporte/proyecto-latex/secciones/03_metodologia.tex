@@ -2,6 +2,8 @@
 
 \subsection{Las tres preguntas}
 
+La propuesta inicial planteó siete preguntas exploratorias; se eligieron las tres primeras porque las tres se resuelven con un \texttt{GROUP BY} sobre las mismas columnas, lo que aísla el efecto de la herramienta. Las cuatro restantes (duración, geografía, período de fiestas y distancia/velocidad) quedaron fuera del alcance.
+
 \begin{table}[htbp]
 \centering
 \caption{Preguntas analíticas del proyecto}
@@ -38,9 +40,9 @@ SQLite es la tercera herramienta y aporta el contraste más informativo del trab
 
 \subsection{Protocolo de ejecución independiente}
 
-Cada combinación de versión, herramienta y pregunta es una \textbf{ejecución independiente que arranca desde el archivo}: se carga desde cero y después se corre la consulta. El tiempo reportado es carga $+$ query, y ese es el número que se compara contra el límite de 10 minutos.
+Cada combinación de versión, herramienta y pregunta es una \textbf{ejecución independiente que arranca desde el archivo}: se carga desde cero y después se corre la consulta. El tiempo reportado es carga $+$ query, y ese es el número que se compara contra el límite de 10 minutos. El límite se verifica al terminar cada ejecución: la que lo supera se marca \texttt{EXCEDE} y las preguntas siguientes de esa herramienta se omiten.
 
-La razón es que SQLite no conserva el archivo cargado entre consultas, a diferencia de Pandas, que mantiene el DataFrame en RAM, y de DuckDB, que mantiene la tabla en memoria. Aplicar el mismo protocolo a las tres evita que alguna se beneficie de reutilizar una carga que otra tuvo que repetir.
+La razón es que SQLite no conserva el archivo cargado entre consultas, a diferencia de Pandas y DuckDB, que mantienen los datos en memoria. El mismo protocolo para las tres evita que alguna se beneficie de reutilizar una carga que otra tuvo que repetir.
 
 Otras reglas que sostienen la honestidad de la medición:
 

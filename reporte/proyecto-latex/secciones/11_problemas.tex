@@ -1,5 +1,6 @@
 \section{Problemas encontrados}
 
+{\footnotesize
 \begin{longtable}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedright\arraybackslash}p{7.9cm}>{\raggedright\arraybackslash}p{7.9cm}}
 \caption{Problemas encontrados durante el desarrollo}
 \label{tab:problemas} \\
@@ -26,12 +27,13 @@ Se reescribió con un CTE \texttt{ids} (unión de los identificadores de origen 
 \texttt{PRAGMA journal\_mode=OFF}, \texttt{synchronous=OFF}, \texttt{cache\_size=-262144} e inserción por lotes de 200,000 filas con \texttt{executemany}, en vez de un \texttt{INSERT} por fila. \\
 5 & \textbf{SQLite no conserva el CSV cargado entre consultas}, a diferencia de Pandas y DuckDB. &
 Se adoptó el protocolo de ejecución independiente y se aplicó a las tres herramientas, para que la comparación fuera simétrica. \\
-6 & \textbf{El import de \texttt{pyarrow} inflaba el tiempo de carga del Parquet.} Pandas lo carga de forma perezosa en el primer \texttt{read\_parquet()}, y ese import en frío se contabilizaba como tiempo de lectura de datos. &
+6 & \textbf{El import de \texttt{pyarrow} inflaba el tiempo de carga del Parquet.} Pandas lo importa en el primer \texttt{read\_parquet()} y ese import en frío se contaba como lectura de datos. &
 Se movió el import fuera de todo bloque cronometrado. \\
-7 & \textbf{Los artefactos pesados en carpetas sincronizadas distorsionaban los tiempos.} La sincronización en segundo plano compite por I/O. &
+7 & \textbf{Los artefactos pesados en carpetas sincronizadas distorsionaban los tiempos}, porque la sincronización compite por I/O. &
 Los \texttt{.db} y \texttt{.parquet} se escriben en disco local, no en la carpeta de nube. \\
-8 & \textbf{Pc\_Martha (15.7 GB) falló en XL tras 17 minutos} sin llegar a completar la lectura del CSV. &
-Se registró como resultado, no como error a corregir: es el dato que define el umbral de Big Data para ese equipo. Se corrió una segunda pasada sin XL para obtener la serie completa de las demás versiones. \\
-9 & \textbf{La gráfica de impacto suma tiempos sin verificar que ambas etapas tengan las mismas preguntas completadas.} Cuando una etapa tiene ejecuciones omitidas, la barra de la línea base queda artificialmente corta y sugiere que la optimización empeoró el rendimiento. &
-Se detectó en el caso de SQLite en XL sobre Pc\_Nahin y se corrigió comparando pregunta contra pregunta. La comparación válida está en la Fase 3 (\S\ref{sec:nota-nahin}). \\
+8 & \textbf{Pc\_Martha (15.7 GB) falló en XL tras 17 minutos} sin completar la lectura del CSV. &
+Se registró como resultado: es el dato que define el umbral de Big Data para ese equipo. Se corrió una segunda pasada sin XL para completar las demás versiones. \\
+9 & \textbf{La gráfica de impacto suma tiempos sin verificar que ambas etapas tengan las mismas preguntas completadas.} Con ejecuciones omitidas, la barra base queda corta y sugiere que la optimización empeoró el rendimiento. &
+Se detectó en SQLite XL sobre Pc\_Nahin y se corrigió comparando pregunta contra pregunta (\S\ref{sec:nota-nahin}). \\
 \end{longtable}
+}

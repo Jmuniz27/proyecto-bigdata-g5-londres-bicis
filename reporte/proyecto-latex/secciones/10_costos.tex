@@ -43,7 +43,7 @@ El total sigue siendo minúsculo ($\sim$\$5/año) porque todo el histórico del 
 
 \textbf{Databricks cuesta más que un equivalente sobre servicios nativos de nube a este volumen, y la causa es identificable.} Un diseño equivalente sobre S3 + Glue + Athena rondaría \$0.27/mes. Aquí sale \$0.42/mes. El almacenamiento es casi igual (ambos $\sim$\$0.10). La diferencia está en el consumo: un motor facturado por \emph{terabyte escaneado} (Athena) sale más barato a este volumen que uno facturado por \emph{tiempo encendido} (Databricks SQL Serverless, con tarifa mínima de \$2.80/hora). La brecha se cierra o se invierte en cuanto crece el volumen de consultas concurrentes, que es el escenario para el que Databricks SQL está diseñado.
 
-\textbf{Sensibilidad a la escala.} Si el sistema creciera 200 veces ($\sim$1 TB acumulado), el almacenamiento en bronce pasaría a $\approx\$21.3$/mes (sigue en el primer escalón de tarifa) y el cómputo ETL a $\sim$\$0.86/mes. El costo dejaría de ser trivial, pero seguiría siendo pequeño frente a SQLite sin optimizar, como se documentó en la Fase 3.
+\textbf{Sensibilidad a la escala.} Si el sistema creciera 200 veces ($\sim$945 GB acumulados), el almacenamiento en bronce pasaría a $\approx\$19.7$/mes (sigue en el primer escalón de tarifa) y el cómputo ETL, asumiendo que Spark escala el job a unos 100 minutos, a $\sim$\$0.86/mes. El costo dejaría de ser trivial, pero seguiría siendo pequeño frente al tiempo de persona que cuesta reproducir el análisis sin el artefacto optimizado.
 
 \subsection{Costo ya medido: cómputo local y tiempo de persona}
 
