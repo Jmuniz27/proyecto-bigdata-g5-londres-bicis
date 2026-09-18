@@ -17,45 +17,42 @@ El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formal
   computebox/.style={box, fill=orange!8},
   arr/.style={-{Stealth[length=2.2mm]}, thick}
 ]
-  \newcommand{\storebadge}[1]{\textcolor{blue!55!black}{\scriptsize\bfseries #1}}
-  \newcommand{\computebadgetxt}[1]{\textcolor{orange!55!black}{\scriptsize\bfseries #1}}
-
-  \node[box] (A) {\\[10pt] CSV mensual\\ \texttt{london.csv}\\ (fuente externa)};
+  \node[box] (A) {\\[14pt] CSV mensual\\ \texttt{london.csv}\\ (fuente externa)};
 
   \node[computebox, right=of A] (B)
-    {\computebadgetxt{Databricks Workflows}\\[2pt]
-     Ingesta\\ trigger mensual\\ programado};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/databricks_icon.png}\\[2pt]
+     Ingesta\\ Databricks Workflows\\ trigger mensual};
 
   \node[storebox, right=of B] (C)
-    {\storebadge{ADLS Gen2}\\[2pt]
-     Bronce\\ \texttt{bronze/}\\ CSV, 9 columnas};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/azure.png}\\[2pt]
+     Bronce\\ ADLS Gen2 \texttt{bronze/}\\ CSV, 9 columnas};
 
   \node[computebox, right=of C] (D)
-    {\computebadgetxt{Databricks Jobs}\\[2pt]
-     Limpieza\\ notebook PySpark\\ cast, nulos};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/databricks_icon.png}\\[2pt]
+     Limpieza\\ Databricks Jobs\\ cast, nulos};
 
   \node[storebox, right=of D] (E)
-    {\storebadge{ADLS Gen2}\\[2pt]
-     Plata\\ \texttt{silver/}\\ Delta Lake};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/azure.png}\\[2pt]
+     Plata\\ ADLS Gen2 \texttt{silver/}\\ Delta Lake};
 
   \node[computebox, right=of E] (F)
-    {\computebadgetxt{Databricks Jobs}\\[2pt]
-     Agregación\\ mismo notebook\\ \texttt{GROUP BY}};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/databricks_icon.png}\\[2pt]
+     Agregación\\ Databricks Jobs\\ \texttt{GROUP BY}};
 
   \node[storebox, right=of F] (G)
-    {\storebadge{ADLS Gen2}\\[2pt]
-     Oro\\ \texttt{gold/}\\ Q1 Q2 Q3};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/azure.png}\\[2pt]
+     Oro\\ ADLS Gen2 \texttt{gold/}\\ Q1 Q2 Q3};
 
   \node[storebox, above=of D, fill=green!5] (H)
-    {\storebadge{ADLS Gen2}\\[2pt]
-     Catálogo\\ estaciones\\ 802 filas};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/azure.png}\\[2pt]
+     Catálogo\\ estaciones\\ ADLS Gen2, 802 filas};
 
   \node[computebox, above=of E, fill=violet!6] (J)
-    {\computebadgetxt{Unity Catalog}\\[2pt]
-     Esquema\\ de plata y oro};
+    {\includegraphics[width=0.9cm]{figuras/azure-icons/databricks_icon.png}\\[2pt]
+     Unity Catalog\\ esquema de\\ plata y oro};
 
   \node[box, right=of G, fill=teal!6] (I)
-    {\storebadge{Databricks SQL}\\[2pt]
+    {\includegraphics[width=0.75cm]{figuras/azure-icons/databricks_icon.png}\hspace{2pt}\includegraphics[width=0.75cm]{figuras/azure-icons/powerbi.png}\\[2pt]
      Consumo\\ SQL Serverless +\\ Power BI};
 
   \draw[arr] (A) -- (B);
@@ -69,7 +66,7 @@ El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formal
   \draw[arr] (G) -- (I);
 \end{tikzpicture}%
 }
-\caption{Pipeline ETL propuesto sobre Databricks + Azure, capas medallón (bronce/plata/oro) en Delta Lake sobre Azure Data Lake Storage Gen2, con Databricks Jobs como motor de transformación, Unity Catalog como catálogo de esquema y Databricks SQL Serverless para el consumo.}
+\caption{Pipeline ETL propuesto sobre Databricks + Azure, capas medallón (bronce/plata/oro) en Delta Lake sobre Azure Data Lake Storage Gen2, con Databricks Jobs como motor de transformación, Unity Catalog como catálogo de esquema y Databricks SQL Serverless + Power BI para el consumo. Íconos oficiales de Microsoft Azure, Databricks y Power BI.}
 \label{fig:pipeline}
 \end{figure}
 
