@@ -1,16 +1,16 @@
 \section{Análisis de costos}
 \label{sec:costos}
 
-El análisis cubre dos cosas distintas: el costo de operar el pipeline ETL propuesto en la Sección \ref{sec:pipeline} sobre Databricks + Azure, y el costo ya medido de la optimización de la Fase 3. Los precios son los públicos y actuales de las calculadoras oficiales de \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{Azure Databricks} y \href{https://azure.microsoft.com/en-us/pricing/details/storage/data-lake/}{Azure Data Lake Storage Gen2} para la región \texttt{us-east} (Este de EE.\,UU.), consultados en septiembre de 2026; no se espera exactitud, sino que el desglose sea razonable, esté sustentado y use tarifas reales en vez de estimaciones inferidas.
+El análisis cubre dos cosas distintas: el costo de operar el pipeline ETL propuesto en la Sección \ref{sec:pipeline} sobre Databricks + Azure, y el costo ya medido de la optimización de la Fase 3. Los precios son los públicos y actuales de las calculadoras oficiales de \href{https://azure.microsoft.com/en-us/pricing/details/databricks/}{Azure Databricks} y \href{https://azure.microsoft.com/en-us/pricing/details/storage/data-lake/}{Azure Data Lake Storage Gen2} para la región \texttt{us-east} (Este de EE.\,UU.), consultados en septiembre de 2026. No se espera exactitud, sino que el desglose sea razonable, esté sustentado y use tarifas reales en vez de estimaciones inferidas.
 
 \textbf{Supuestos del escenario:}
 
 \begin{itemize}
   \item Proveedor: Databricks sobre Microsoft Azure, tier Premium, región East US, precios \emph{pay-as-you-go} sin descuentos por compromiso.
-  \item Frecuencia: batch mensual, archivo del tamaño de la versión S (0.488 GB) por corrida; estado estable en el mes 10, cuando bronce alcanza el tamaño de la versión XL (4.725 GB).
-  \item La capa plata mantiene la razón de reducción de la Fase 3 ($53\times$ frente al CSV): el Delta acumulado en el mes 10 pesa $\sim$89 MB.
-  \item ETL en un nodo \texttt{Standard\_DS3\_v2} (4 vCPU, 14 GB RAM, 0.75 DBU), \emph{Jobs Compute}, 10 minutos por corrida (arranque de clúster incluido).
-  \item Consumo contra un \emph{warehouse} Databricks SQL Serverless 2X-Small (4 DBU), que se apaga solo tras inactividad; se asumen 5 minutos de uso mensual.
+  \item Frecuencia: batch mensual, con un archivo del tamaño de la versión S (0.488 GB) por corrida. El estado estable se alcanza en el mes 10, cuando bronce llega al tamaño de la versión XL (4.725 GB).
+  \item La capa plata mantiene la razón de reducción de la Fase 3, $53\times$ frente al CSV. El Delta acumulado en el mes 10 pesa $\sim$89 MB.
+  \item ETL en un nodo \texttt{Standard\_DS3\_v2} (4 vCPU, 14 GB RAM, 0.75 DBU) de tipo \emph{Jobs Compute}, con 10 minutos por corrida (arranque de clúster incluido).
+  \item Consumo contra un \emph{warehouse} Databricks SQL Serverless 2X-Small (4 DBU) que se apaga solo tras inactividad. Se asumen 5 minutos de uso mensual.
 \end{itemize}
 
 \subsection{Costo del pipeline en la nube (mensual, estado estable)}
@@ -39,9 +39,9 @@ Transferencia de salida & Muy por debajo de los 100 GB/mes gratuitos de Azure & 
 {\footnotesize [1] \url{azure.microsoft.com/pricing/details/storage/data-lake} \quad [2] \url{azure.microsoft.com/pricing/details/databricks} \quad [3] \url{azure.microsoft.com/pricing/details/bandwidth}}
 \end{table}
 
-El total sigue siendo minúsculo ($\sim$\$5/año) porque todo el histórico del dataset cabe en menos de 5 GB. Esa es en sí misma una conclusión relevante: \textbf{a esta escala, el costo de nube no es un problema}; lo que domina el presupuesto es la decisión de diseño (Delta vs. CSV, cuánto tiempo queda encendido el warehouse), no el gasto en infraestructura. Esto es consistente con el hallazgo de la Fase 3: la representación de los datos importa más que la cantidad de recursos que se les asigna.
+El total sigue siendo minúsculo ($\sim$\$5/año) porque todo el histórico del dataset cabe en menos de 5 GB. Esa es en sí misma una conclusión relevante: \textbf{a esta escala, el costo de nube no es un problema}. Lo que domina el presupuesto es la decisión de diseño (Delta vs. CSV, cuánto tiempo queda encendido el warehouse), no el gasto en infraestructura. Esto es consistente con el hallazgo de la Fase 3: la representación de los datos importa más que la cantidad de recursos que se les asigna.
 
-\textbf{Databricks cuesta más que un equivalente sobre servicios nativos de nube a este volumen, y la causa es identificable.} Un diseño equivalente sobre S3 + Glue + Athena rondaría \$0.27/mes; aquí sale \$0.42/mes. El almacenamiento es casi igual (ambos $\sim$\$0.10); la diferencia está en el consumo: un motor facturado por \emph{terabyte escaneado} (Athena) es más barato a este volumen que uno facturado por \emph{tiempo encendido} (Databricks SQL Serverless, con tarifa mínima de \$2.80/hora). La brecha se cierra o se invierte en cuanto crece el volumen de consultas concurrentes, el escenario para el que Databricks SQL está diseñado.
+\textbf{Databricks cuesta más que un equivalente sobre servicios nativos de nube a este volumen, y la causa es identificable.} Un diseño equivalente sobre S3 + Glue + Athena rondaría \$0.27/mes. Aquí sale \$0.42/mes. El almacenamiento es casi igual (ambos $\sim$\$0.10). La diferencia está en el consumo: un motor facturado por \emph{terabyte escaneado} (Athena) sale más barato a este volumen que uno facturado por \emph{tiempo encendido} (Databricks SQL Serverless, con tarifa mínima de \$2.80/hora). La brecha se cierra o se invierte en cuanto crece el volumen de consultas concurrentes, que es el escenario para el que Databricks SQL está diseñado.
 
 \textbf{Sensibilidad a la escala.} Si el sistema creciera 200 veces ($\sim$1 TB acumulado), el almacenamiento en bronce pasaría a $\approx\$21.3$/mes (sigue en el primer escalón de tarifa) y el cómputo ETL a $\sim$\$0.86/mes. El costo dejaría de ser trivial, pero seguiría siendo pequeño frente a SQLite sin optimizar, como se documentó en la Fase 3.
 

@@ -1,7 +1,7 @@
 \section{Diseño del pipeline ETL}
 \label{sec:pipeline}
 
-El enunciado pide únicamente el diagrama, sin implementación: lo que sigue es la propuesta, sobre Databricks + Azure. El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formalizarlo en capas lo vuelve reutilizable y explica las decisiones de diseño. Se asume un escenario de ingesta periódica: el operador del sistema de bicicletas entrega un archivo mensual con los viajes nuevos, de un tamaño similar a la versión S del dataset (0.488 GB, 3.97 millones de filas). Con esa cadencia, el archivo acumulado en la capa bronce alcanza el tamaño de la versión XL (4.725 GB) alrededor del mes 10, momento que se usa como estado estable para el análisis de costos de la Sección \ref{sec:costos}.
+El enunciado pide únicamente el diagrama, sin implementación. Lo que sigue es la propuesta, sobre Databricks + Azure. El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formalizarlo en capas lo vuelve reutilizable y explica las decisiones de diseño. Se asume un escenario de ingesta periódica: el operador del sistema de bicicletas entrega un archivo mensual con los viajes nuevos, de un tamaño similar a la versión S del dataset (0.488 GB, 3.97 millones de filas). Con esa cadencia, el archivo acumulado en la capa bronce alcanza el tamaño de la versión XL (4.725 GB) alrededor del mes 10. Ese momento se usa como estado estable para el análisis de costos de la Sección \ref{sec:costos}.
 
 \begin{figure}[htbp]
 \centering
@@ -77,13 +77,13 @@ El enunciado pide únicamente el diagrama, sin implementación: lo que sigue es 
 \toprule
 Etapa & Servicio & Por qué esa herramienta \\
 \midrule
-Orquestación & Databricks Workflows (Jobs) & Programa el job mensual sobre el mismo clúster que ejecuta el ETL; sin servicio de orquestación aparte encendido de forma permanente. \\
+Orquestación & Databricks Workflows (Jobs) & Programa el job mensual sobre el mismo clúster que ejecuta el ETL. No hay un servicio de orquestación aparte encendido todo el tiempo. \\
 Ingesta / Bronce & ADLS Gen2 (contenedor \texttt{bronze/}) & Almacenamiento jerárquico, barato y duradero para el CSV tal cual llega. También aloja el catálogo de estaciones. \\
-Limpieza y transformación & Databricks Jobs (notebook PySpark) & Motor Spark administrado: resuelve casteo, nulos y proyección a 4 columnas; el mismo trabajo de Fase 3, escalado a un job programado. \\
-Plata & ADLS Gen2 (\texttt{silver/}), Delta Lake & Sigue la decisión de Fase 3 ($53\times$ de reducción frente al CSV); Delta añade versionado y transacciones ACID sobre ese mismo Parquet. \\
+Limpieza y transformación & Databricks Jobs (notebook PySpark) & Motor Spark administrado que resuelve casteo, nulos y proyección a 4 columnas. Es el mismo trabajo de Fase 3, escalado a un job programado. \\
+Plata & ADLS Gen2 (\texttt{silver/}), Delta Lake & Sigue la decisión de Fase 3, con $53\times$ de reducción frente al CSV. Delta añade versionado y transacciones ACID sobre ese mismo Parquet. \\
 Catálogo de esquema & Unity Catalog & Registra el esquema de plata y oro con control de acceso centralizado, sin definir tablas a mano. \\
 Agregación / Oro & Databricks Jobs (mismo notebook) & Calcula Q1, Q2 y Q3 y las escribe como Delta pequeño en \texttt{gold/}. \\
-Consumo & Databricks SQL (Serverless) + Power BI & El warehouse arranca en segundos, se apaga solo tras inactividad y cobra por segundo activo; evita un clúster SQL encendido para tan pocas consultas. \\
+Consumo & Databricks SQL (Serverless) + Power BI & El warehouse arranca en segundos, se apaga solo tras inactividad y cobra por segundo activo. Evita mantener un clúster SQL encendido para tan pocas consultas. \\
 \bottomrule
 \end{tabularx}
 \end{table}
