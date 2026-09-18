@@ -2,7 +2,7 @@
 \label{sec:pipeline}
 
 \begin{pendiente}
-El enunciado pide únicamente el diagrama, sin implementación. Lo que sigue es una propuesta de partida basada en lo que ya se construyó en la Fase 3, con herramientas concretas de AWS asignadas a cada etapa; el equipo debe validarla y ajustarla.
+El enunciado pide únicamente el diagrama, sin implementación. Lo que sigue es una propuesta de partida basada en lo que ya se construyó en la Fase 3, con Databricks sobre Azure como plataforma concreta para cada etapa; el equipo debe validarla y ajustarla.
 \end{pendiente}
 
 El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formalizarlo en capas lo vuelve reutilizable y explica las decisiones de diseño. Se asume un escenario de ingesta periódica: el operador del sistema de bicicletas entrega un archivo mensual con los viajes nuevos, de un tamaño similar a la versión S del dataset (0.488 GB, 3.97 millones de filas). Con esa cadencia, el archivo acumulado en la capa bronce alcanza el tamaño de la versión XL (4.725 GB) alrededor del mes 10, momento que se usa como estado estable para el análisis de costos de la Sección \ref{sec:costos}.
@@ -13,41 +13,50 @@ El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formal
 \begin{tikzpicture}[
   node distance=1.0cm and 1.0cm,
   box/.style={draw, rounded corners, align=center, minimum height=2.4cm, minimum width=2.5cm, fill=blue!4, font=\footnotesize, text width=2.3cm},
+  storebox/.style={box, fill=blue!6},
+  computebox/.style={box, fill=orange!8},
   arr/.style={-{Stealth[length=2.2mm]}, thick}
 ]
-  \node[box] (A) {\\[14pt] CSV mensual\\ \texttt{london.csv}\\ (fuente externa)};
+  \newcommand{\storebadge}[1]{\textcolor{blue!55!black}{\scriptsize\bfseries #1}}
+  \newcommand{\computebadgetxt}[1]{\textcolor{orange!55!black}{\scriptsize\bfseries #1}}
 
-  \node[box, right=of A] (B)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/eventbridge.pdf}\\[2pt]
-     Ingesta\\ EventBridge\\ Scheduler};
+  \node[box] (A) {\\[10pt] CSV mensual\\ \texttt{london.csv}\\ (fuente externa)};
 
-  \node[box, right=of B] (C)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/s3.pdf}\\[2pt]
-     Bronce\\ S3 \texttt{raw/}\\ 9 columnas};
+  \node[computebox, right=of A] (B)
+    {\computebadgetxt{Databricks Workflows}\\[2pt]
+     Ingesta\\ trigger mensual\\ programado};
 
-  \node[box, right=of C] (D)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/glue.pdf}\\[2pt]
-     Limpieza\\ AWS Glue\\ cast, nulos};
+  \node[storebox, right=of B] (C)
+    {\storebadge{ADLS Gen2}\\[2pt]
+     Bronce\\ \texttt{bronze/}\\ CSV, 9 columnas};
 
-  \node[box, right=of D] (E)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/s3.pdf}\\[2pt]
-     Plata\\ S3 \texttt{silver/}\\ Parquet};
+  \node[computebox, right=of C] (D)
+    {\computebadgetxt{Databricks Jobs}\\[2pt]
+     Limpieza\\ notebook PySpark\\ cast, nulos};
 
-  \node[box, right=of E] (F)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/glue.pdf}\\[2pt]
-     Agregación\\ AWS Glue\\ \texttt{GROUP BY}};
+  \node[storebox, right=of D] (E)
+    {\storebadge{ADLS Gen2}\\[2pt]
+     Plata\\ \texttt{silver/}\\ Delta Lake};
 
-  \node[box, right=of F] (G)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/s3.pdf}\\[2pt]
-     Oro\\ S3 \texttt{gold/}\\ Q1 Q2 Q3};
+  \node[computebox, right=of E] (F)
+    {\computebadgetxt{Databricks Jobs}\\[2pt]
+     Agregación\\ mismo notebook\\ \texttt{GROUP BY}};
 
-  \node[box, above=of D, fill=green!5] (H)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/s3.pdf}\\[2pt]
-     Catálogo\\ estaciones\\ S3, 802 filas};
+  \node[storebox, right=of F] (G)
+    {\storebadge{ADLS Gen2}\\[2pt]
+     Oro\\ \texttt{gold/}\\ Q1 Q2 Q3};
 
-  \node[box, right=of G, fill=orange!5] (I)
-    {\includegraphics[width=0.9cm]{figuras/aws-icons/athena.pdf}\\[2pt]
-     Consumo\\ Athena +\\ QuickSight};
+  \node[storebox, above=of D, fill=green!5] (H)
+    {\storebadge{ADLS Gen2}\\[2pt]
+     Catálogo\\ estaciones\\ 802 filas};
+
+  \node[computebox, above=of E, fill=violet!6] (J)
+    {\computebadgetxt{Unity Catalog}\\[2pt]
+     Esquema\\ de plata y oro};
+
+  \node[box, right=of G, fill=teal!6] (I)
+    {\storebadge{Databricks SQL}\\[2pt]
+     Consumo\\ SQL Serverless +\\ Power BI};
 
   \draw[arr] (A) -- (B);
   \draw[arr] (B) -- (C);
@@ -56,10 +65,11 @@ El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formal
   \draw[arr] (E) -- (F);
   \draw[arr] (F) -- (G);
   \draw[arr] (H) -- (D);
+  \draw[arr] (E) -- (J);
   \draw[arr] (G) -- (I);
 \end{tikzpicture}%
 }
-\caption{Pipeline ETL propuesto sobre AWS, capas medallón (bronce/plata/oro), con íconos oficiales de los servicios (Amazon S3, AWS Glue, Amazon EventBridge Scheduler, Amazon Athena) y entrada lateral del catálogo de estaciones en la etapa de limpieza.}
+\caption{Pipeline ETL propuesto sobre Databricks + Azure, capas medallón (bronce/plata/oro) en Delta Lake sobre Azure Data Lake Storage Gen2, con Databricks Jobs como motor de transformación, Unity Catalog como catálogo de esquema y Databricks SQL Serverless para el consumo.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -68,19 +78,19 @@ El ETL medido en la Fase 3 ya es, de hecho, un pipeline de una sola capa. Formal
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption{Servicios de AWS asignados a cada etapa del pipeline}
+\caption{Servicios de Databricks sobre Azure asignados a cada etapa del pipeline}
 \label{tab:pipeline-herramientas}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{3.4cm}X}
 \toprule
 Etapa & Servicio & Por qué esa herramienta \\
 \midrule
-Orquestación & EventBridge Scheduler + Step Functions & Dispara el job mensual y coordina las etapas. Un entorno persistente de Airflow administrado (Amazon MWAA) cuesta más de \$300/mes solo por estar encendido, muy por encima del costo del job que orquesta; estos dos servicios cobran por invocación y caen en la capa gratuita a este volumen. \\
-Ingesta / Bronce & S3 (bucket \texttt{raw/}) & Almacenamiento de objetos barato y duradero para el CSV tal cual llega, sin transformar. También aloja el catálogo de estaciones. \\
-Limpieza y transformación & Glue (job PySpark) & Motor Spark serverless: resuelve el casteo de tipos, los nulos y la proyección a 4 columnas sin administrar un clúster; el mismo trabajo que Fase 3 hizo localmente, escalado a un servicio gestionado. \\
-Plata & S3 (bucket \texttt{silver/}), Parquet & Sigue la decisión de Fase 3: Parquet columnar con tipos reducidos, que ya demostró $53\times$ de reducción frente al CSV. \\
-Catálogo de esquema & Glue Data Catalog & Registra el esquema de plata para que Athena y Glue la lean sin definir tablas a mano. \\
-Agregación / Oro & Glue (mismo job) & Calcula las tablas Q1, Q2 y Q3 y las escribe como Parquet pequeño en \texttt{gold/}. \\
-Consumo & Athena (SQL) + QuickSight & Athena consulta directo sobre S3 sin mover datos ni levantar infraestructura; se paga solo por lo escaneado, mínimo en la capa oro. \\
+Orquestación & Databricks Workflows (Jobs) & Programa el job mensual sobre el mismo clúster que ejecuta el ETL; sin servicio de orquestación aparte encendido de forma permanente. \\
+Ingesta / Bronce & ADLS Gen2 (contenedor \texttt{bronze/}) & Almacenamiento jerárquico, barato y duradero para el CSV tal cual llega. También aloja el catálogo de estaciones. \\
+Limpieza y transformación & Databricks Jobs (notebook PySpark) & Motor Spark administrado: resuelve casteo, nulos y proyección a 4 columnas; el mismo trabajo de Fase 3, escalado a un job programado. \\
+Plata & ADLS Gen2 (\texttt{silver/}), Delta Lake & Sigue la decisión de Fase 3 ($53\times$ de reducción frente al CSV); Delta añade versionado y transacciones ACID sobre ese mismo Parquet. \\
+Catálogo de esquema & Unity Catalog & Registra el esquema de plata y oro con control de acceso centralizado, sin definir tablas a mano. \\
+Agregación / Oro & Databricks Jobs (mismo notebook) & Calcula Q1, Q2 y Q3 y las escribe como Delta pequeño en \texttt{gold/}. \\
+Consumo & Databricks SQL (Serverless) + Power BI & El warehouse arranca en segundos, se apaga solo tras inactividad y cobra por segundo activo; evita un clúster SQL encendido para tan pocas consultas. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -92,5 +102,5 @@ La capa de limpieza es donde se resuelven los tres problemas de calidad detectad
 \begin{itemize}
   \item Confirmar si el enunciado pide capas medallón u otra nomenclatura
   \item Decidir si el catálogo de estaciones se une en plata o en oro
-  \item Especificar la estrategia de particionado en S3, si aplica (por ejemplo, por año-mes de \texttt{start\_rental\_date\_time})
+  \item Especificar la estrategia de particionado en ADLS Gen2, si aplica (por ejemplo, por año-mes de \texttt{start\_rental\_date\_time})
 \end{itemize}
