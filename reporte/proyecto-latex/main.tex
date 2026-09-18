@@ -65,27 +65,47 @@
 
 % ---------- Portada (armada a mano para controlar el tamaño de fuente) ----------
 \begin{titlepage}
-\begin{center}
-\vspace*{2cm}
-{\LARGE Proyecto Big Data G5: Uso de Bicicletas (Londres)} \\[0.5em]
-{\large Módulo: Ingeniería y Analítica de Grandes Cantidades de Datos}
+\thispagestyle{empty}
 
-\vspace{1.5cm}
-{\normalsize Grupo 5}
+% Franja de color a la izquierda, ancho completo de la página
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[blue!55!black] (current page.north west) rectangle
+    ([xshift=0.35cm]current page.south west);
+  \fill[blue!25!white] ([xshift=0.35cm]current page.north west) rectangle
+    ([xshift=0.55cm]current page.south west);
+\end{tikzpicture}
 
-\vspace{0.8cm}
-{\normalsize
-\begin{tabular}{cc}
-Cevallos Vinces Nahin Jussephe & Sanchez Guzman Annabella Noelia \\[0.5em]
-Martha Maritza Duran Navarrete & Suarez Aspiazu Jesus David \\[0.5em]
-Martin Pimentel Isabella Ivonne & Zurita Guerrero Angelo Saul \\[0.5em]
-\multicolumn{2}{c}{Munizaga Torres Juan Andres}
+\vspace*{3.2cm}
+{\footnotesize\bfseries\color{blue!55!black} MÓDULO}\\[2pt]
+{\large Ingeniería y Analítica de Grandes Cantidades de Datos}
+
+\vspace{1.4cm}
+{\Huge\bfseries Proyecto Big Data}\\[6pt]
+{\LARGE Grupo 5: Uso de Bicicletas (Londres)}
+
+\vspace{0.4cm}
+\textcolor{blue!55!black}{\rule{7cm}{0.9pt}}
+
+\vspace{2.0cm}
+{\small\bfseries\color{blue!55!black} INTEGRANTES}
+
+\vspace{0.5cm}
+\begin{tabular}{ll}
+Cevallos Vinces & Nahin Jussephe \\[3pt]
+Sanchez Guzman & Annabella Noelia \\[3pt]
+Martha Maritza & Duran Navarrete \\[3pt]
+Suarez Aspiazu & Jesus David \\[3pt]
+Martin Pimentel & Isabella Ivonne \\[3pt]
+Zurita Guerrero & Angelo Saul \\[3pt]
+Munizaga Torres & Juan Andres \\
 \end{tabular}
-}
 
-\vspace{1.5cm}
-{\normalsize 18 de septiembre de 2026}
-\end{center}
+\vfill
+
+{\small 18 de septiembre de 2026}\\[4pt]
+{\small Código fuente: \url{https://github.com/Jmuniz27/proyecto-bigdata-g5-londres-bicis}}
+
+\vspace{1.2cm}
 \end{titlepage}
 
 \newpage
