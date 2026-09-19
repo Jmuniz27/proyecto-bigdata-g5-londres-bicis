@@ -1,6 +1,6 @@
 # Proyecto Big Data G5: Uso de Bicicletas (Londres)
 
-Módulo: Ingeniería y Analítica de Grandes Cantidades de Datos.
+Módulo: Big Data Analytics.
 
 Comparación de Pandas, DuckDB y SQLite sobre el histórico de viajes del sistema
 público de bicicletas de Londres (hasta 38.2 millones de filas), en tres
@@ -24,7 +24,7 @@ diseño del pipeline ETL y análisis de costos, está en
 
 ## Grupo 5
 
-Nahin Jussephe Cevallos Vinces, Annabella Noelia Sanchez Guzman,
-Martha Maritza Duran Navarrete, Jesus David Suarez Aspiazu,
-Isabella Ivonne Martin Pimentel, Angelo Saul Zurita Guerrero,
-Juan Andres Munizaga Torres
+Nahin Jussephe Cevallos Vinces, Annabella Noelia Sánchez Guzmán,
+Martha Maritza Durán Navarrete, Jesús David Suárez Aspiazu,
+Isabella Ivonne Martín Pimentel, Angelo Saúl Zurita Guerrero,
+Juan Andrés Munizaga Torres
